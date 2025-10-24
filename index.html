@@ -207,10 +207,8 @@
     <!-- 游戏加载动画 -->
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-dark/0 backdrop-blur" id="introModal">
       <div class="relative bg-black/0 rounded-xl p-6 md:p-8 max-w-md w-full mx-4 transform transition-all min-h-[38%]">
-        <!-- <p class="mb-4 text-dark/80">收集各地方言，解锁中国地图。当所有方言汇聚，将重现完整河山！</p> -->
-
         <div id="startBtn" class="animate-float">
-        <img src="https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/318a1_20251024141643.png" alt="开始守护之旅" class="absolute bottom-[-11.5rem] left-1/2 -translate-x-1/2 w-9/10 cursor-pointer hover:opacity-80 transition-opacity">
+        <img src="https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/318a1_20251024141643.png" alt="开始守护之旅" class="absolute bottom-[-11.5rem] left-1/2 -translate-x-1/2 w-99/100 cursor-pointer hover:opacity-80 transition-opacity">
         <!-- <span class="absolute bottom-[-1rem] left-[calc(20%+3rem)] text-dark/80 mb-4 whitespace-nowrap cursor-pointer hover:opacity-50 transition-opacity">方言聚山河,点我开启神秘之旅~</span> -->
         </div>
       </div>
@@ -255,15 +253,20 @@
     <!-- 村落主场景 -->
     <section id="villageScene" class="flex-1 container mx-auto px-4 py-6">
       <!-- 进度条 -->
-      <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden">
+      <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden hidden">
         <div id="restorationProgress" class="bg-gradient-to-r from-primary to-secondary h-full w-0 transition-all duration-1000 shadow-glow-sm" style="width: 0%"></div>
       </div>
+<<<<<<< HEAD
       <div class="flex flex-col md:flex-row justify-between text-sm mb-2 ">
         <div>
+=======
+      <div  class="flex flex-col md:flex-row justify-between text-sm mb-2">
+        <div hidden>
+>>>>>>> 4911fb27126b4f0a4cdf4a4e0fd1a499296eafd4
           <span>修复进度：<span id="progressPercent">0%</span></span>
           <span class="ml-4">已解锁：<span id="unlockedCount">0/15</span></span>
         </div>
-        <span id="collectedCount">已收集方言：0/48</span>
+        <span id="collectedCount" hidden>已收集方言：0/48</span>
       </div>
       
       <!-- 主要内容区：村落 + 地图 -->
@@ -919,6 +922,19 @@
         landscapes: {},
         symbols: {}
       },
+      dialectImages: {
+          cantonese: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/034d6_20251024144755.jpg', // 广东特色图片
+          sichuan: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/46cbc_20251024144901.jpg',  // 四川特色图片
+          beijing: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/a02f0_20251024144957.jpg',  // 北京特色图片
+          northeast: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/73ba5_20251024145152.webp', // 东北特色图片
+          shanghai: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/8e0f4_20251024144510.jpg',  // 上海特色图片
+          wenzhou: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/666b7_20251024145842.jpg',   // 温州特色图片
+          changsha: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/af469_20251024145241.jpg',  // 长沙特色图片
+          xinjiang: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/0aacc_20251024145350.jpg',  // 新疆特色图片
+          henan: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/5ea18_20251024145734.jpg',     // 河南特色图片
+          anhui: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/36eb9_20251024145631.jpg',     // 安徽特色图片
+          tianjin: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/1fe5d_20251024145524.jpg'    // 天津特色图片
+      },
       // 方言-省份映射
       dialectProvinceMap: {
         cantonese: 'guangdong',
@@ -1331,6 +1347,19 @@
       recognition.onend = () => {
         if (recordStatus.textContent.includes('正在录音')) {
           recordStatus.textContent = '录音已结束，正在处理...';
+          // 增加超时处理，3秒后若未更新则提示错误
+          setTimeout(() => {
+            if (recordStatus.textContent === '录音已结束，正在处理...') {
+              recordStatus.textContent = '处理超时，请重新录音';
+              recordBtn.disabled = false;
+              waveform.classList.add('hidden');
+            }
+    }, 3000);
+  
+
+
+
+
         }
       };
     });
@@ -1421,17 +1450,21 @@
       if (showAnimation) {
         unlockAnimation.classList.remove('hidden');
         
-        // 根据元素类型设置不同的图片
-        let imgSrc = '';
-        if (elementName.includes('建筑')) {
-          imgSrc = 'https://picsum.photos/id/1071/400/200';
-        } else if (elementName.includes('景观')) {
-          imgSrc = 'https://picsum.photos/id/175/400/200';
-        } else if (elementName.includes('符号')) {
-          imgSrc = 'https://picsum.photos/id/237/400/200';
-        } else {
-          imgSrc = 'https://picsum.photos/id/1015/400/200';
-        }
+        // // 根据元素类型设置不同的图片
+        // let imgSrc = '';
+        // if (elementName.includes('建筑')) {
+        //   imgSrc = 'https://picsum.photos/id/1071/400/200';
+        // } else if (elementName.includes('景观')) {
+        //   imgSrc = 'https://picsum.photos/id/175/400/200';
+        // } else if (elementName.includes('符号')) {
+        //   imgSrc = 'https://picsum.photos/id/237/400/200';
+        // } else {
+        //   imgSrc = 'https://picsum.photos/id/1015/400/200';
+        // }
+
+        // 根据方言类型设置对应的特色图片
+        let imgSrc = gameData.dialectImages[gameData.currentDialect] || 'https://picsum.photos/id/1015/800/400';
+        
         
         unlockingImage.src = imgSrc;
         unlockingImage.classList.add('grayscale');
