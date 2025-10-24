@@ -953,6 +953,19 @@
         landscapes: {},
         symbols: {}
       },
+      dialectImages: {
+          cantonese: 'https://picsum.photos/id/1036/800/400', // 广东特色图片
+          sichuan: 'https://picsum.photos/id/1039/800/400',  // 四川特色图片
+          beijing: 'https://picsum.photos/id/1051/800/400',  // 北京特色图片
+          northeast: 'https://picsum.photos/id/1015/800/400', // 东北特色图片
+          shanghai: 'https://picsum.photos/id/1037/800/400',  // 上海特色图片
+          wenzhou: 'https://picsum.photos/id/1038/800/400',   // 温州特色图片
+          changsha: 'https://picsum.photos/id/1040/800/400',  // 长沙特色图片
+          xinjiang: 'https://picsum.photos/id/1042/800/400',  // 新疆特色图片
+          henan: 'https://picsum.photos/id/1043/800/400',     // 河南特色图片
+          anhui: 'https://picsum.photos/id/1044/800/400',     // 安徽特色图片
+          tianjin: 'https://picsum.photos/id/1045/800/400'    // 天津特色图片
+      },
       // 方言-省份映射
       dialectProvinceMap: {
         cantonese: 'guangdong',
@@ -1455,16 +1468,18 @@
         unlockAnimation.classList.remove('hidden');
         
         // 根据元素类型设置不同的图片
-        let imgSrc = '';
-        if (elementName.includes('建筑')) {
-          imgSrc = 'https://picsum.photos/id/1071/400/200';
-        } else if (elementName.includes('景观')) {
-          imgSrc = 'https://picsum.photos/id/175/400/200';
-        } else if (elementName.includes('符号')) {
-          imgSrc = 'https://picsum.photos/id/237/400/200';
-        } else {
-          imgSrc = 'https://picsum.photos/id/1015/400/200';
-        }
+        // let imgSrc = '';
+        // if (elementName.includes('建筑')) {
+        //   imgSrc = 'https://picsum.photos/id/1071/400/200';
+        // } else if (elementName.includes('景观')) {
+        //   imgSrc = 'https://picsum.photos/id/175/400/200';
+        // } else if (elementName.includes('符号')) {
+        //   imgSrc = 'https://picsum.photos/id/237/400/200';
+        // } else {
+        //   imgSrc = 'https://picsum.photos/id/1015/400/200';
+        // }
+         // 根据方言类型设置对应的特色图片
+        let imgSrc = gameData.dialectImages[gameData.currentDialect] || 'https://picsum.photos/id/1015/800/400';
         
         unlockingImage.src = imgSrc;
         unlockingImage.classList.add('grayscale');
