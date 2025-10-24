@@ -164,14 +164,14 @@
           <i class="fa fa-trophy"></i>
           <span>排行榜</span>
         </button>
-        <button class="hidden md:flex items-center space-x-1 hover:text-secondary transition-colors" id="mapBtn">
+        <!-- <button class="hidden md:flex items-center space-x-1 hover:text-secondary transition-colors" id="mapBtn">
           <i class="fa fa-map"></i>
           <span>上传</span>
-        </button>
-        <button class="hidden md:flex items-center space-x-1 hover:text-secondary transition-colors" id="mapBtn">
+        </button> -->
+        <!-- <button class="hidden md:flex items-center space-x-1 hover:text-secondary transition-colors" id="mapBtn">
           <i class="fa fa-map"></i>
           <span>收藏</span>
-        </button>
+        </button> -->
         <!-- <div class="relative">
           <button class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-dark hover:scale-110 transition-transform shadow-glow-sm" id="userBtn">
             <i class="fa fa-user"></i>
@@ -258,7 +258,7 @@
       <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden">
         <div id="restorationProgress" class="bg-gradient-to-r from-primary to-secondary h-full w-0 transition-all duration-1000 shadow-glow-sm" style="width: 0%"></div>
       </div>
-      <div class="flex flex-col md:flex-row justify-between text-sm mb-2">
+      <div class="flex flex-col md:flex-row justify-between text-sm mb-2 ">
         <div>
           <span>修复进度：<span id="progressPercent">0%</span></span>
           <span class="ml-4">已解锁：<span id="unlockedCount">0/15</span></span>
@@ -280,7 +280,7 @@
           <div class="absolute top-6 right-6 w-16 h-16 bg-gold/20 rounded-full opacity-90 animate-pulse-slow border border-gold/50 shadow-glow-sm"></div>
           
           <!-- 1. 核心建筑层 (初始状态：破败) -->
-          <div class="building-layer absolute bottom-0 left-0 right-0 h-3/5 flex justify-around items-end px-4 flex-wrap z-10">
+          <!-- <div class="building-layer absolute bottom-0 left-0 right-0 h-3/5 flex justify-around items-end px-4 flex-wrap z-10">
             <div class="village-building w-20 md:w-28 opacity-0 grayscale" data-building="teahouse" data-dialect="cantonese">
               <img src="https://picsum.photos/id/1048/200/300" alt="茶馆" class="w-full h-auto rounded-t-lg">
               <div class="bg-primary/80 text-dark text-xs text-center py-1 rounded-b-lg font-medium">广东·茶馆</div>
@@ -305,7 +305,7 @@
               <img src="https://picsum.photos/id/239/200/300" alt="戏楼" class="w-full h-auto rounded-t-lg">
               <div class="bg-primary/80 text-dark text-xs text-center py-1 rounded-b-lg font-medium">上海·戏楼</div>
             </div>
-          </div>
+          </div> -->
           
           <!-- 2. 街巷景观层 (初始状态：隐藏) -->
           <div class="landscape-layer absolute bottom-0 left-0 right-0 h-full z-5">
@@ -1470,7 +1470,18 @@
         
         // 加载下一句
         // showScene(villageScene); // 调用场景切换函数，回到主场景
-        loadPhrase();
+          // 检查当前方言是否已完成所有短语
+          const phrases = gameData.phrases[gameData.currentDialect];
+          if (gameData.currentPhraseIndex >= phrases.length) {
+            // 如果已完成当前方言的所有短语，返回主页面
+            showScene(villageScene);
+             // 解锁对应省份
+            unlockProvince(gameData.currentDialect);
+        
+          } else {
+            // 否则加载下一句
+            loadPhrase();
+          }
       }, 300);
     });
     
