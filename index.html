@@ -255,7 +255,7 @@
     <!-- 村落主场景 -->
     <section id="villageScene" class="flex-1 container mx-auto px-4 py-6">
       <!-- 进度条 -->
-      <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden">
+      <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden hidden">
         <div id="restorationProgress" class="bg-gradient-to-r from-primary to-secondary h-full w-0 transition-all duration-1000 shadow-glow-sm" style="width: 0%"></div>
       </div>
 
@@ -265,7 +265,7 @@
           <span>修复进度：<span id="progressPercent">0%</span></span>
           <span class="ml-4">已解锁：<span id="unlockedCount">0/15</span></span>
         </div>
-        <span id="collectedCount">已收集方言：0/48</span>
+        <span hidden id="collectedCount">已收集方言：0/48</span>
       </div>
       
       <!-- 主要内容区：村落 + 地图 -->
@@ -921,6 +921,19 @@
         landscapes: {},
         symbols: {}
       },
+      dialectImages: {
+          cantonese: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/034d6_20251024144755.jpg', // 广东特色图片
+          sichuan: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/46cbc_20251024144901.jpg',  // 四川特色图片
+          beijing: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/a02f0_20251024144957.jpg',  // 北京特色图片
+          northeast: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/73ba5_20251024145152.webp', // 东北特色图片
+          shanghai: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/8e0f4_20251024144510.jpg',  // 上海特色图片
+          wenzhou: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/666b7_20251024145842.jpg',   // 温州特色图片
+          changsha: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/af469_20251024145241.jpg',  // 长沙特色图片
+          xinjiang: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/0aacc_20251024145350.jpg',  // 新疆特色图片
+          henan: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/5ea18_20251024145734.jpg',     // 河南特色图片
+          anhui: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/36eb9_20251024145631.jpg',     // 安徽特色图片
+          tianjin: 'https://simg01.gaodunwangxiao.com/uploadfiles/tmp/upload/202510/24/1fe5d_20251024145524.jpg'    // 天津特色图片
+      },
       // 方言-省份映射
       dialectProvinceMap: {
         cantonese: 'guangdong',
@@ -1424,16 +1437,19 @@
         unlockAnimation.classList.remove('hidden');
         
         // 根据元素类型设置不同的图片
-        let imgSrc = '';
-        if (elementName.includes('建筑')) {
-          imgSrc = 'https://picsum.photos/id/1071/400/200';
-        } else if (elementName.includes('景观')) {
-          imgSrc = 'https://picsum.photos/id/175/400/200';
-        } else if (elementName.includes('符号')) {
-          imgSrc = 'https://picsum.photos/id/237/400/200';
-        } else {
-          imgSrc = 'https://picsum.photos/id/1015/400/200';
-        }
+        // let imgSrc = '';
+        // if (elementName.includes('建筑')) {
+        //   imgSrc = 'https://picsum.photos/id/1071/400/200';
+        // } else if (elementName.includes('景观')) {
+        //   imgSrc = 'https://picsum.photos/id/175/400/200';
+        // } else if (elementName.includes('符号')) {
+        //   imgSrc = 'https://picsum.photos/id/237/400/200';
+        // } else {
+        //   imgSrc = 'https://picsum.photos/id/1015/400/200';
+        // }
+        
+         // 根据方言类型设置对应的特色图片
+        let imgSrc = gameData.dialectImages[gameData.currentDialect] || 'https://picsum.photos/id/1015/800/400';
         
         unlockingImage.src = imgSrc;
         unlockingImage.classList.add('grayscale');
