@@ -167,6 +167,10 @@
           <i class="fa fa-map"></i>
           <span>上传</span>
         </button>
+        <button class="hidden md:flex items-center space-x-1 hover:text-secondary transition-colors" id="mapBtn">
+          <i class="fa fa-map"></i>
+          <span>收藏</span>
+        </button>
         <div class="relative">
           <button class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-dark hover:scale-110 transition-transform shadow-glow-sm" id="userBtn">
             <i class="fa fa-user"></i>
@@ -458,7 +462,7 @@
             <p class="text-sm md:text-base text-white">收集方言，点亮中国</p>
           </div>
           
-          <div class="p-4 h-[520px] flex flex-col">
+          <div class="p-4 h-[518px] flex flex-col">
             <!-- 迷你中国地图 -->
             <div class="flex-1 relative">
               <svg id="chinaMap" viewBox="0 0 500 600" class="w-full h-full">
@@ -496,12 +500,12 @@
             </div>
             
             <!-- 已解锁方言列表 -->
-            <div class="mt-4 border-t border-primary/30 pt-4">
+            <!-- <div class="mt-4 border-t border-primary/30 pt-4">
               <h4 class="text-sm font-medium mb-2">已解锁方言：</h4>
               <div id="unlockedDialects" class="flex flex-wrap gap-2">
                 <span class="text-dark/50 text-xs">暂无</span>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
