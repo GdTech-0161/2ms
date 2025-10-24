@@ -265,7 +265,7 @@
     <!-- 村落主场景 -->
     <section id="villageScene" class="flex-1 container mx-auto px-4 py-6">
       <!-- 进度条 -->
-      <!-- <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden">
+      <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden">
         <div id="restorationProgress" class="bg-gradient-to-r from-primary to-secondary h-full w-0 transition-all duration-1000 shadow-glow-sm" style="width: 0%"></div>
       </div>
       <div class="flex flex-col md:flex-row justify-between text-sm mb-2">
@@ -274,7 +274,7 @@
           <span class="ml-4">已解锁：<span id="unlockedCount">0/15</span></span>
         </div>
         <span id="collectedCount">已收集方言：0/48</span>
-      </div> -->
+      </div>
       
       <!-- 主要内容区：村落 + 地图 -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1414,7 +1414,8 @@
       if (gameData.currentPhraseIndex === 0) {
         unlockProvince(gameData.currentDialect, true);
       }
-      
+      // 关键修复：递增短语索引（在弹窗显示前更新）
+      gameData.currentPhraseIndex++;
       showSuccessModal('采集成功！', `你成功收集了"${currentPhrase.dialect}"这个词汇`);
     });
     
@@ -1518,8 +1519,8 @@
         }
         
         // 加载下一句
-        showScene(villageScene); // 调用场景切换函数，回到主场景
-        // loadPhrase();
+        // showScene(villageScene); // 调用场景切换函数，回到主场景
+        loadPhrase();
       }, 300);
     });
     
