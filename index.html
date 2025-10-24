@@ -256,12 +256,12 @@
       <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden">
         <div id="restorationProgress" class="bg-gradient-to-r from-primary to-secondary h-full w-0 transition-all duration-1000 shadow-glow-sm" style="width: 0%"></div>
       </div>
-      <div class="flex flex-col md:flex-row justify-between text-sm mb-2">
-        <div>
+      <div  class="flex flex-col md:flex-row justify-between text-sm mb-2">
+        <div hidden>
           <span>修复进度：<span id="progressPercent">0%</span></span>
           <span class="ml-4">已解锁：<span id="unlockedCount">0/15</span></span>
         </div>
-        <span id="collectedCount">已收集方言：0/48</span>
+        <span id="collectedCount" hidden>已收集方言：0/48</span>
       </div>
       
       <!-- 主要内容区：村落 + 地图 -->
