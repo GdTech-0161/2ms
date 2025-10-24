@@ -3,27 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI方言文化守护者~~</title>
+  <title>方言聚山河 - 文化守护者</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
   
-  <!-- 配置Tailwind -->
+  <!-- 配置Tailwind：山河主题配色 -->
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#9E2A2B',      // 传统红色
-            secondary: '#E6B89C',    // 暖金色
-            accent: '#540B0E',       // 深红色
-            light: '#FFF8F0',        // 米白色
-            dark: '#493323',         // 深棕色
+            primary: '#8B4513',      // 棕褐色（大地主色）
+            secondary: '#228B22',    // 森林绿（山河辅助色）
+            accent: '#CD5C5C',       // 赭石红（点缀色）
+            gold: '#DAA520',         // 金色（解锁光效）
+            light: '#1A1A2E',        // 夜空蓝（背景色）
+            dark: '#F5F5DC',         // 米白色（文字色）
+            'map-bg': '#0F3057',     // 地图底色
+            'map-highlight': '#FFD700'// 地图高亮色
           },
           fontFamily: {
-            sans: ['Noto Sans SC', 'sans-serif'],
+            sans: ['Inter', 'Noto Sans SC', 'sans-serif'],
             serif: ['Noto Serif SC', 'serif'],
           },
+          boxShadow: {
+            'glow': '0 0 18px rgba(218, 165, 32, 0.6), 0 0 8px rgba(34, 139, 34, 0.6)',
+            'glow-sm': '0 0 10px rgba(218, 165, 32, 0.4)',
+          }
         },
       }
     }
@@ -34,11 +40,30 @@
       .content-auto {
         content-visibility: auto;
       }
-      .text-shadow {
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      .text-glow {
+        text-shadow: 0 0 10px rgba(218, 165, 32, 0.6), 0 0 3px #F5F5DC;
       }
-      .village-shadow {
-        filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.2));
+      .building-shadow {
+        filter: drop-shadow(0 0 8px rgba(34, 139, 34, 0.5));
+      }
+      .scrollbar-glow::-webkit-scrollbar {
+        width: 6px;
+      }
+      .scrollbar-glow::-webkit-scrollbar-track {
+        background: rgba(26, 26, 46, 0.9);
+      }
+      .scrollbar-glow::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #8B4513, #228B22);
+        border-radius: 3px;
+      }
+      .audio-btn {
+        transition: all 0.2s ease;
+      }
+      .audio-btn:hover {
+        transform: scale(1.1);
+      }
+      .audio-btn.playing {
+        animation: pulse 1.5s infinite;
       }
       .animate-float {
         animation: float 3s ease-in-out infinite;
@@ -46,11 +71,36 @@
       .animate-pulse-slow {
         animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
       .backdrop-blur {
         backdrop-filter: blur(8px);
+      }
+      .map-province {
+        fill: #1A3A5F;
+        stroke: #2A5A8F;
+        stroke-width: 0.5;
+        transition: all 0.5s ease;
+        cursor: pointer;
+      }
+      .map-province.unlocked {
+        fill: #228B22;
+        stroke: #DAA520;
+        stroke-width: 1;
+        filter: drop-shadow(0 0 3px rgba(218, 165, 32, 0.5));
+      }
+      .map-marker {
+        opacity: 0;
+        transition: all 0.5s ease;
+        transform: scale(0.5);
+      }
+      .map-marker.visible {
+        opacity: 1;
+        transform: scale(1);
+      }
+      .fragment {
+        position: absolute;
+        transition: all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 20;
+        pointer-events: none;
       }
     }
     
@@ -62,17 +112,51 @@
         transform: translateY(-10px);
       }
     }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(34, 139, 34, 0.8);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(34, 139, 34, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(34, 139, 34, 0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    @keyframes buildUp {
+      from { opacity: 0; filter: grayscale(100%) blur(2px); transform: translateY(20px); }
+      to { opacity: 1; filter: grayscale(0%) blur(0); transform: translateY(0); }
+    }
+    
+    @keyframes flyToMap {
+      from { opacity: 1; }
+      to { opacity: 0.8; }
+    }
+    
+    @keyframes assemble {
+      from { opacity: 0; transform: scale(0.3) rotate(180deg); }
+      to { opacity: 1; transform: scale(1) rotate(0); }
+    }
   </style>
 </head>
 
-<body class="bg-light min-h-screen font-sans text-dark overflow-x-hidden">
+<body class="bg-light min-h-screen font-sans text-dark overflow-x-hidden scrollbar-glow">
+  <!-- 背景纹理：山河夜空 -->
+  <div class="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 pointer-events-none"></div>
+  
   <!-- 顶部导航 -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="mainHeader">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center bg-primary/90 backdrop-blur text-light">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center bg-light/80 backdrop-blur text-dark border-b border-primary/30">
       <div class="flex items-center space-x-2">
-        <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/48ef8_20251023183003.png" alt="Logo" class="w-16 h-16 object-contain -mt-1">
         <i class="fa fa-microphone text-2xl text-secondary animate-pulse-slow"></i>
-        <h1 class="text-xl md:text-2xl font-serif font-bold">方言文化守护者</h1>
+        <h1 class="text-xl md:text-2xl font-serif font-bold text-glow">方言聚山河</h1>
       </div>
       
       <div class="flex items-center space-x-6">
@@ -85,7 +169,7 @@
           <span>方言地图</span>
         </button>
         <div class="relative">
-          <button class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-accent hover:scale-110 transition-transform" id="userBtn">
+          <button class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-dark hover:scale-110 transition-transform shadow-glow-sm" id="userBtn">
             <i class="fa fa-user"></i>
           </button>
         </div>
@@ -96,18 +180,18 @@
     </div>
     
     <!-- 移动端菜单 -->
-    <div class="md:hidden bg-primary/95 backdrop-blur text-light hidden" id="mobileMenu">
+    <div class="md:hidden bg-light/95 backdrop-blur text-dark hidden border-b border-primary/30" id="mobileMenu">
       <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
-        <button class="flex items-center space-x-2 py-2 border-b border-secondary/30" id="mobileRankBtn">
-          <i class="fa fa-trophy w-6"></i>
+        <button class="flex items-center space-x-2 py-2 border-b border-primary/10" id="mobileRankBtn">
+          <i class="fa fa-trophy w-6 text-secondary"></i>
           <span>排行榜</span>
         </button>
-        <button class="flex items-center space-x-2 py-2 border-b border-secondary/30" id="mobileMapBtn">
-          <i class="fa fa-map w-6"></i>
+        <button class="flex items-center space-x-2 py-2 border-b border-primary/10" id="mobileMapBtn">
+          <i class="fa fa-map w-6 text-secondary"></i>
           <span>方言地图</span>
         </button>
         <button class="flex items-center space-x-2 py-2" id="mobileHelpBtn">
-          <i class="fa fa-question-circle w-6"></i>
+          <i class="fa fa-question-circle w-6 text-secondary"></i>
           <span>游戏帮助</span>
         </button>
       </div>
@@ -118,102 +202,310 @@
   <main class="pt-16 min-h-screen flex flex-col">
     <!-- 游戏介绍弹窗 -->
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-dark/70 backdrop-blur" id="introModal">
-      <div class="bg-light rounded-xl p-6 md:p-8 max-w-md w-full mx-4 shadow-2xl transform transition-all">
-        <h2 class="text-2xl font-serif font-bold text-primary mb-4 text-center">欢迎来到方言村落</h2>
-        <p class="mb-4 text-dark/80">在这个虚拟村落中，你将成为方言文化守护者，通过采集方言发音和解答文化谜题，修复古老的村落建筑，传承珍贵的方言文化。</p>
-        <div class="grid grid-cols-2 gap-4 mb-6">
-          <div class="bg-light border border-secondary rounded-lg p-3 flex flex-col items-center">
+      <div class="bg-[#0F0D16] rounded-xl p-6 md:p-8 max-w-md w-full mx-4 shadow-glow transform transition-all">
+        <h2 class="text-2xl font-serif font-bold text-primary mb-4 text-center text-glow">方言聚山河</h2>
+        <p class="mb-4 text-dark/80">收集各地方言，修复村落建筑，解锁中国地图。当所有方言汇聚，将重现完整河山！</p>
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <div class="bg-light/10 border border-primary/30 rounded-lg p-3 flex flex-col items-center">
             <i class="fa fa-microphone text-primary text-xl mb-2"></i>
             <span class="text-sm text-center">方言采集</span>
           </div>
-          <div class="bg-light border border-secondary rounded-lg p-3 flex flex-col items-center">
-            <i class="fa fa-puzzle-piece text-primary text-xl mb-2"></i>
-            <span class="text-sm text-center">文化解谜</span>
+          <div class="bg-light/10 border border-primary/30 rounded-lg p-3 flex flex-col items-center">
+            <i class="fa fa-home text-primary text-xl mb-2"></i>
+            <span class="text-sm text-center">修复村落</span>
+          </div>
+          <div class="bg-light/10 border border-primary/30 rounded-lg p-3 flex flex-col items-center">
+            <i class="fa fa-map text-primary text-xl mb-2"></i>
+            <span class="text-sm text-center">聚合山河</span>
           </div>
         </div>
-        <button class="w-full bg-primary hover:bg-accent text-light py-3 rounded-lg transition-colors font-medium" id="startBtn">
+        <button class="w-full bg-gradient-to-r from-primary to-secondary hover:shadow-glow text-dark py-3 rounded-lg transition-colors font-medium" id="startBtn">
           开始守护之旅
         </button>
       </div>
     </div>
 
+    <!-- 胜利页面：山河聚合图 -->
+    <section id="victoryScene" class="fixed inset-0 z-50 flex items-center justify-center bg-light hidden">
+      <div class="absolute inset-0 bg-[url('https://picsum.photos/id/1015/1920/1080')] bg-cover bg-center opacity-30"></div>
+      <div class="container mx-auto px-4 z-10 text-center">
+        <h2 class="text-4xl md:text-5xl font-serif font-bold text-gold mb-6 text-glow animate-pulse">方言聚山河</h2>
+        
+        <!-- 中国河山图 -->
+        <div class="relative max-w-4xl mx-auto mb-8 rounded-xl overflow-hidden shadow-glow border-2 border-gold/50">
+          <div id="chinaMapFinal" class="w-full aspect-[16/9] bg-map-bg relative">
+            <!-- 山河图将由碎片聚合而成 -->
+          </div>
+        </div>
+        
+        <p class="text-xl mb-8 max-w-2xl mx-auto">恭喜你收集了所有方言，修复了完整村落，让中国山河重现光彩！</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+          <div class="bg-light/30 backdrop-blur rounded-lg p-4 border border-primary/30">
+            <div class="text-3xl font-bold text-gold mb-1">12</div>
+            <div class="text-dark/80">方言种类</div>
+          </div>
+          <div class="bg-light/30 backdrop-blur rounded-lg p-4 border border-primary/30">
+            <div class="text-3xl font-bold text-gold mb-1">48</div>
+            <div class="text-dark/80">方言词汇</div>
+          </div>
+          <div class="bg-light/30 backdrop-blur rounded-lg p-4 border border-primary/30">
+            <div class="text-3xl font-bold text-gold mb-1">15</div>
+            <div class="text-dark/80">修复元素</div>
+          </div>
+        </div>
+        
+        <button class="px-8 py-3 bg-gradient-to-r from-primary to-secondary text-dark rounded-lg hover:shadow-glow transition-colors font-medium" id="restartBtn">
+          重新开始
+        </button>
+      </div>
+    </section>
+
     <!-- 村落主场景 -->
     <section id="villageScene" class="flex-1 container mx-auto px-4 py-6">
       <!-- 进度条 -->
-      <div class="mb-6 bg-light border border-secondary/30 rounded-full h-3 overflow-hidden">
-        <div id="restorationProgress" class="bg-primary h-full w-0 transition-all duration-1000" style="width: 15%"></div>
+      <div class="mb-6 bg-light/50 border border-primary/30 rounded-full h-3 overflow-hidden">
+        <div id="restorationProgress" class="bg-gradient-to-r from-primary to-secondary h-full w-0 transition-all duration-1000 shadow-glow-sm" style="width: 0%"></div>
       </div>
-      <div class="flex justify-between text-sm mb-2">
-        <span>村落修复进度：15%</span>
-        <span id="collectedCount">已收集方言：5/50</span>
+      <div class="flex flex-col md:flex-row justify-between text-sm mb-2">
+        <div>
+          <span>修复进度：<span id="progressPercent">0%</span></span>
+          <span class="ml-4">已解锁：<span id="unlockedCount">0/15</span></span>
+        </div>
+        <span id="collectedCount">已收集方言：0/48</span>
       </div>
       
-      <!-- 虚拟村落 -->
-      <div class="relative bg-gradient-to-b from-blue-50 to-green-50 rounded-2xl overflow-hidden village-shadow mb-8 h-[500px] md:h-[600px]">
-        <!-- 背景元素 -->
-        <div class="absolute inset-0 bg-[url('https://picsum.photos/id/1018/1200/800')] bg-cover bg-center opacity-20"></div>
-        
-        <!-- 天空和太阳 -->
-        <div class="absolute top-6 right-6 w-16 h-16 bg-yellow-400 rounded-full opacity-80 animate-pulse-slow"></div>
-        
-        <!-- 村落建筑 - 部分修复状态 -->
-        <div class="absolute bottom-0 left-0 right-0 h-3/5 flex justify-around items-end px-4">
-          <!-- 已修复建筑 -->
-          <div class="village-building w-20 md:w-28 animate-float" data-building="teahouse">
-            <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/359eb_20251023183807.png" alt="茶馆" class="w-full h-auto rounded-t-lg shadow-lg">
-            <div class="bg-secondary/80 text-dark text-xs text-center py-1 rounded-b-lg">茶馆</div>
+      <!-- 主要内容区：村落 + 地图 -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 虚拟村落：三层修复结构 -->
+        <div class="lg:col-span-2 relative bg-gradient-to-b from-light to-[#0F0D16] rounded-2xl overflow-hidden shadow-glow h-[600px] particle-bg" id="villageContainer">
+          <!-- 粒子背景 -->
+          <canvas id="villageParticles" class="absolute inset-0 z-0 opacity-70"></canvas>
+          
+          <!-- 背景元素：山河轮廓 -->
+          <div class="absolute inset-0 bg-[url('https://picsum.photos/id/1018/1200/800')] bg-cover bg-center opacity-15 mix-blend-overlay"></div>
+          
+          <!-- 月亮 -->
+          <div class="absolute top-6 right-6 w-16 h-16 bg-gold/20 rounded-full opacity-90 animate-pulse-slow border border-gold/50 shadow-glow-sm"></div>
+          
+          <!-- 1. 核心建筑层 (初始状态：破败) -->
+          <div class="building-layer absolute bottom-0 left-0 right-0 h-3/5 flex justify-around items-end px-4 flex-wrap z-10">
+            <div class="village-building w-20 md:w-28 opacity-0 grayscale" data-building="teahouse" data-dialect="cantonese">
+              <img src="https://picsum.photos/id/1048/200/300" alt="茶馆" class="w-full h-auto rounded-t-lg">
+              <div class="bg-primary/80 text-dark text-xs text-center py-1 rounded-b-lg font-medium">广东·茶馆</div>
+            </div>
+            
+            <div class="village-building w-20 md:w-28 opacity-0 grayscale" data-building="temple" data-dialect="henan">
+              <img src="https://picsum.photos/id/1053/200/300" alt="祠堂" class="w-full h-auto rounded-t-lg">
+              <div class="bg-primary/80 text-dark text-xs text-center py-1 rounded-b-lg font-medium">河南·祠堂</div>
+            </div>
+            
+            <div class="village-building w-20 md:w-28 opacity-0 grayscale" data-building="school" data-dialect="beijing">
+              <img src="https://picsum.photos/id/1071/200/300" alt="学堂" class="w-full h-auto rounded-t-lg">
+              <div class="bg-primary/80 text-dark text-xs text-center py-1 rounded-b-lg font-medium">北京·学堂</div>
+            </div>
+            
+            <div class="village-building w-20 md:w-28 opacity-0 grayscale" data-building="market" data-dialect="sichuan">
+              <img src="https://picsum.photos/id/133/200/300" alt="市集" class="w-full h-auto rounded-t-lg">
+              <div class="bg-primary/80 text-dark text-xs text-center py-1 rounded-b-lg font-medium">四川·市集</div>
+            </div>
+            
+            <div class="village-building w-20 md:w-28 opacity-0 grayscale hidden md:block" data-building="theater" data-dialect="shanghai">
+              <img src="https://picsum.photos/id/239/200/300" alt="戏楼" class="w-full h-auto rounded-t-lg">
+              <div class="bg-primary/80 text-dark text-xs text-center py-1 rounded-b-lg font-medium">上海·戏楼</div>
+            </div>
           </div>
           
-          <!-- 待修复建筑 - 模糊状态 -->
-          <div class="village-building w-20 md:w-28 opacity-50 filter grayscale" data-building="temple">
-            <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/c2a20_20251023183825.png" alt="祠堂" class="w-full h-auto rounded-t-lg shadow-lg">
-            <div class="bg-gray-400/80 text-dark text-xs text-center py-1 rounded-b-lg">祠堂</div>
+          <!-- 2. 街巷景观层 (初始状态：隐藏) -->
+          <div class="landscape-layer absolute bottom-0 left-0 right-0 h-full z-5">
+            <!-- 石板路 -->
+            <div class="village-landscape absolute bottom-0 left-0 right-0 h-16 bg-primary/30 opacity-0" data-landscape="road" data-require="2">
+              <div class="h-full bg-[url('https://www.transparenttextures.com/patterns/cobblestone.png')] opacity-30"></div>
+            </div>
+            
+            <!-- 灯笼 -->
+            <div class="village-landscape absolute top-1/3 left-[15%] w-8 h-16 opacity-0" data-landscape="lantern1" data-require="3">
+              <img src="https://picsum.photos/id/175/100/200" alt="灯笼" class="w-full h-full object-contain filter grayscale">
+            </div>
+            
+            <div class="village-landscape absolute top-1/4 right-[25%] w-8 h-16 opacity-0" data-landscape="lantern2" data-require="5">
+              <img src="https://picsum.photos/id/175/100/200" alt="灯笼" class="w-full h-full object-contain filter grayscale">
+            </div>
+            
+            <!-- 古树 -->
+            <div class="village-landscape absolute bottom-0 left-[5%] w-24 h-32 opacity-0" data-landscape="tree" data-require="7">
+              <img src="https://picsum.photos/id/1063/200/300" alt="古树" class="w-full h-full object-contain filter grayscale">
+            </div>
+            
+            <!-- 牌坊 -->
+            <div class="village-landscape absolute bottom-0 right-[5%] w-32 h-40 opacity-0 hidden md:block" data-landscape="arch" data-require="9">
+              <img src="https://picsum.photos/id/137/200/300" alt="牌坊" class="w-full h-full object-contain filter grayscale">
+            </div>
           </div>
           
-          <div class="village-building w-20 md:w-28 opacity-50 filter grayscale" data-building="school">
-            <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/93dba_20251023183746.png" alt="学堂" class="w-full h-auto rounded-t-lg shadow-lg">
-            <div class="bg-gray-400/80 text-dark text-xs text-center py-1 rounded-b-lg">学堂</div>
+          <!-- 3. 文化符号层 (初始状态：隐藏) -->
+          <div class="symbol-layer absolute inset-0 z-15 pointer-events-none">
+            <div class="village-symbol absolute top-1/3 right-[15%] w-12 h-12 opacity-0" data-symbol="lion" data-dialect="cantonese">
+              <img src="https://picsum.photos/id/237/100/100" alt="醒狮" class="w-full h-full rounded-full">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap">醒狮</div>
+            </div>
+            
+            <div class="village-symbol absolute top-1/2 left-[20%] w-12 h-12 opacity-0" data-symbol="noodle" data-dialect="sichuan">
+              <img src="https://picsum.photos/id/292/100/100" alt="火锅" class="w-full h-full rounded-full">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap">火锅</div>
+            </div>
+            
+            <div class="village-symbol absolute top-1/4 left-[30%] w-12 h-12 opacity-0" data-symbol="opera" data-dialect="shanghai">
+              <img src="https://picsum.photos/id/325/100/100" alt="越剧" class="w-full h-full rounded-full">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap">越剧</div>
+            </div>
+            
+            <div class="village-symbol absolute bottom-1/3 right-[20%] w-12 h-12 opacity-0" data-symbol="grape" data-dialect="xinjiang">
+              <img src="https://picsum.photos/id/1080/100/100" alt="葡萄" class="w-full h-full rounded-full">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap">葡萄</div>
+            </div>
+            
+            <div class="village-symbol absolute bottom-1/4 left-[40%] w-12 h-12 opacity-0" data-symbol="northeast" data-dialect="northeast">
+              <img src="https://picsum.photos/id/365/100/100" alt="二人转" class="w-full h-full rounded-full">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap">二人转</div>
+            </div>
           </div>
           
-          <div class="village-building w-20 md:w-28 opacity-50 filter grayscale" data-building="market">
-            <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/df992_20251023183850.png" alt="市集" class="w-full h-auto rounded-t-lg shadow-lg">
-            <div class="bg-gray-400/80 text-dark text-xs text-center py-1 rounded-b-lg">市集</div>
+          <!-- 村民 -->
+          <div class="villagers-container absolute inset-0 z-20">
+            <div class="absolute bottom-40 left-[10%] w-12 h-12 md:w-16 md:h-16 cursor-pointer animate-float" id="villager1" data-dialect="cantonese" data-province="guangdong">
+              <img src="https://picsum.photos/id/64/100/100" alt="粤语村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">李阿婆 (粤语)</div>
+            </div>
+            
+            <div class="absolute bottom-48 right-[30%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.5s" id="villager2" data-dialect="sichuan" data-province="sichuan">
+              <img src="https://picsum.photos/id/91/100/100" alt="四川话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">张大爷 (四川话)</div>
+            </div>
+            
+            <div class="absolute top-1/3 left-[25%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.2s" id="villager3" data-dialect="beijing" data-province="beijing">
+              <img src="https://picsum.photos/id/22/100/100" alt="北京话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">王大爷 (北京话)</div>
+            </div>
+            
+            <div class="absolute top-1/4 right-[20%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.7s" id="villager4" data-dialect="northeast" data-province="liaoning">
+              <img src="https://picsum.photos/id/29/100/100" alt="东北话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">赵大哥 (东北话)</div>
+            </div>
+            
+            <div class="absolute bottom-1/3 right-[15%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.4s" id="villager5" data-dialect="shanghai" data-province="shanghai">
+              <img src="https://picsum.photos/id/33/100/100" alt="上海话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">陈阿姨 (上海话)</div>
+            </div>
+            
+            <div class="absolute bottom-1/2 left-[40%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.9s" id="villager6" data-dialect="wenzhou" data-province="zhejiang">
+              <img src="https://picsum.photos/id/54/100/100" alt="温州话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">林老板 (温州话)</div>
+            </div>
+            
+            <div class="absolute top-1/2 right-[40%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.6s" id="villager7" data-dialect="changsha" data-province="hunan">
+              <img src="https://picsum.photos/id/65/100/100" alt="长沙话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">刘娭毑 (长沙话)</div>
+            </div>
+            
+            <div class="absolute top-1/3 right-[10%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.1s" id="villager8" data-dialect="xinjiang" data-province="xinjiang">
+              <img src="https://picsum.photos/id/177/100/100" alt="新疆话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">马大叔 (新疆话)</div>
+            </div>
+            
+            <div class="absolute bottom-1/4 left-[20%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.3s" id="villager9" data-dialect="henan" data-province="henan">
+              <img src="https://picsum.photos/id/342/100/100" alt="河南话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">李大爷 (河南话)</div>
+            </div>
+            
+            <div class="absolute top-1/4 left-[15%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.8s" id="villager10" data-dialect="anhui" data-province="anhui">
+              <img src="https://picsum.photos/id/433/100/100" alt="安徽话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">张阿姨 (安徽话)</div>
+            </div>
+            
+            <div class="absolute bottom-1/3 left-[70%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 1.0s" id="villager11" data-dialect="tianjin" data-province="tianjin">
+              <img src="https://picsum.photos/id/554/100/100" alt="天津话村民" class="w-full h-full rounded-full border-2 border-secondary shadow-glow">
+              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-primary/90 text-dark text-xs px-2 py-1 rounded whitespace-nowrap text-glow">王大哥 (天津话)</div>
+            </div>
+          </div>
+          
+          <!-- 任务标记 -->
+          <div class="absolute top-1/4 left-[35%] bg-primary text-dark text-xs px-3 py-1 rounded-full flex items-center space-x-1 cursor-pointer hover:bg-secondary transition-colors shadow-glow animate-pulse-slow" id="puzzleMarker">
+            <i class="fa fa-puzzle-piece text-gold"></i>
+            <span class="text-glow">文化谜题</span>
           </div>
         </div>
         
-        <!-- 虚拟村民 - 可交互NPC -->
-        <div class="absolute bottom-40 left-[20%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" id="villager1" data-dialect="cantonese">
-          <img src="https://picsum.photos/id/64/100/100" alt="粤语村民" class="w-full h-full rounded-full border-2 border-secondary">
-          <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-secondary text-dark text-xs px-2 py-1 rounded whitespace-nowrap">李阿婆 (粤语)</div>
-        </div>
-        
-        <div class="absolute bottom-48 right-[30%] w-12 h-12 md:w-16 md:h-16 cursor-pointer hover:scale-110 transition-transform animate-float" style="animation-delay: 0.5s" id="villager2" data-dialect="sichuan">
-          <img src="https://picsum.photos/id/91/100/100" alt="四川话村民" class="w-full h-full rounded-full border-2 border-secondary">
-          <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-secondary text-dark text-xs px-2 py-1 rounded whitespace-nowrap">张大爷 (四川话)</div>
-        </div>
-        
-        <!-- 任务标记 -->
-        <div class="absolute top-1/4 left-[35%] bg-primary text-light text-xs px-3 py-1 rounded-full flex items-center space-x-1 cursor-pointer hover:bg-accent transition-colors" id="puzzleMarker">
-          <i class="fa fa-puzzle-piece"></i>
-          <span>文化谜题</span>
+        <!-- 中国方言地图 -->
+        <div class="lg:col-span-1 bg-[#0F0D16] rounded-2xl shadow-glow overflow-hidden">
+          <div class="p-4 border-b border-primary/30">
+            <h3 class="text-lg font-serif font-bold text-primary text-glow">方言文化地图</h3>
+            <p class="text-sm text-dark/70">收集方言，点亮中国</p>
+          </div>
+          
+          <div class="p-4 h-[544px] flex flex-col">
+            <!-- 迷你中国地图 -->
+            <div class="flex-1 relative">
+              <svg id="chinaMap" viewBox="0 0 500 600" class="w-full h-full">
+                <!-- 简化版中国地图路径 -->
+                <path class="map-province" id="beijing" d="M290,180 L310,170 L320,185 L300,200 Z" data-name="北京" data-dialect="beijing"></path>
+                <path class="map-province" id="tianjin" d="M310,190 L330,180 L340,195 L320,210 Z" data-name="天津" data-dialect="tianjin"></path>
+                <path class="map-province" id="liaoning" d="M320,150 L380,140 L390,210 L330,220 Z" data-name="辽宁" data-dialect="northeast"></path>
+                <path class="map-province" id="shanghai" d="M330,280 L350,270 L360,290 L340,300 Z" data-name="上海" data-dialect="shanghai"></path>
+                <path class="map-province" id="zhejiang" d="M310,290 L350,280 L360,340 L320,350 Z" data-name="浙江" data-dialect="wenzhou"></path>
+                <path class="map-province" id="anhui" d="M280,280 L310,270 L320,320 L290,330 Z" data-name="安徽" data-dialect="anhui"></path>
+                <path class="map-province" id="henan" d="M270,240 L300,230 L310,280 L280,290 Z" data-name="河南" data-dialect="henan"></path>
+                <path class="map-province" id="hunan" d="M240,320 L270,310 L280,360 L250,370 Z" data-name="湖南" data-dialect="changsha"></path>
+                <path class="map-province" id="guangdong" d="M280,350 L310,340 L320,400 L290,410 Z" data-name="广东" data-dialect="cantonese"></path>
+                <path class="map-province" id="sichuan" d="M190,320 L250,310 L260,390 L200,400 Z" data-name="四川" data-dialect="sichuan"></path>
+                <path class="map-province" id="xinjiang" d="M50,100 L150,90 L160,250 L60,260 Z" data-name="新疆" data-dialect="xinjiang"></path>
+                
+                <!-- 方言标记点 -->
+                <circle class="map-marker" cx="300" cy="185" r="4" fill="#DAA520" data-dialect="beijing"></circle>
+                <circle class="map-marker" cx="320" cy="195" r="4" fill="#DAA520" data-dialect="tianjin"></circle>
+                <circle class="map-marker" cx="350" cy="170" r="4" fill="#DAA520" data-dialect="northeast"></circle>
+                <circle class="map-marker" cx="340" cy="280" r="4" fill="#DAA520" data-dialect="shanghai"></circle>
+                <circle class="map-marker" cx="330" cy="320" r="4" fill="#DAA520" data-dialect="wenzhou"></circle>
+                <circle class="map-marker" cx="290" cy="300" r="4" fill="#DAA520" data-dialect="anhui"></circle>
+                <circle class="map-marker" cx="280" cy="260" r="4" fill="#DAA520" data-dialect="henan"></circle>
+                <circle class="map-marker" cx="250" cy="340" r="4" fill="#DAA520" data-dialect="changsha"></circle>
+                <circle class="map-marker" cx="300" cy="370" r="4" fill="#DAA520" data-dialect="cantonese"></circle>
+                <circle class="map-marker" cx="220" cy="360" r="4" fill="#DAA520" data-dialect="sichuan"></circle>
+                <circle class="map-marker" cx="100" cy="180" r="4" fill="#DAA520" data-dialect="xinjiang"></circle>
+              </svg>
+              
+              <!-- 地图提示 -->
+              <div class="absolute bottom-2 left-2 right-2 bg-light/70 backdrop-blur rounded text-xs p-2">
+                <p class="text-center">收集方言，点亮对应地区</p>
+              </div>
+            </div>
+            
+            <!-- 已解锁方言列表 -->
+            <div class="mt-4 border-t border-primary/30 pt-4">
+              <h4 class="text-sm font-medium mb-2">已解锁方言：</h4>
+              <div id="unlockedDialects" class="flex flex-wrap gap-2">
+                <span class="text-dark/50 text-xs">暂无</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
       <!-- 功能按钮区 -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button class="bg-primary hover:bg-accent text-light py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="collectBtn">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <button class="bg-gradient-to-r from-primary to-secondary hover:shadow-glow text-dark py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="collectBtn">
           <i class="fa fa-microphone text-xl mb-2"></i>
           <span>方言采集</span>
         </button>
-        <button class="bg-secondary hover:bg-secondary/80 text-dark py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="puzzleBtn">
-          <i class="fa fa-puzzle-piece text-xl mb-2"></i>
+        <button class="bg-secondary/20 border border-secondary/50 hover:bg-secondary/30 text-dark py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="puzzleBtn">
+          <i class="fa fa-puzzle-piece text-xl mb-2 text-secondary"></i>
           <span>文化解谜</span>
         </button>
-        <button class="bg-light border border-primary text-primary hover:bg-primary/10 py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="collectionBtn">
+        <button class="bg-light/30 border border-primary/50 text-primary hover:bg-primary/10 py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="collectionBtn">
           <i class="fa fa-book text-xl mb-2"></i>
           <span>方言收藏</span>
         </button>
-        <button class="bg-light border border-primary text-primary hover:bg-primary/10 py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="achievementBtn">
+        <button class="bg-light/30 border border-primary/50 text-primary hover:bg-primary/10 py-3 rounded-lg transition-all flex flex-col items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1" id="achievementBtn">
           <i class="fa fa-medal text-xl mb-2"></i>
           <span>成就徽章</span>
         </button>
@@ -222,70 +514,76 @@
     
     <!-- 方言采集界面 -->
     <section id="collectScene" class="flex-1 container mx-auto px-4 py-6 hidden">
-      <button class="mb-6 flex items-center text-primary hover:text-accent transition-colors" id="backToVillage">
+      <button class="mb-6 flex items-center text-primary hover:text-secondary transition-colors" id="backToVillage">
         <i class="fa fa-arrow-left mr-2"></i>
         <span>返回村落</span>
       </button>
       
-      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div class="bg-[#0F0D16] rounded-2xl shadow-glow overflow-hidden">
         <!-- 村民对话区 -->
-        <div class="bg-primary text-light p-6">
+        <div class="bg-gradient-to-r from-primary/80 to-secondary/80 text-dark p-6">
           <div class="flex items-start space-x-4">
-            <img src="https://picsum.photos/id/64/100/100" alt="李阿婆" class="w-14 h-14 rounded-full border-2 border-secondary" id="currentVillagerImg">
+            <img src="https://picsum.photos/id/64/100/100" alt="村民头像" class="w-14 h-14 rounded-full border-2 border-gold shadow-glow-sm" id="currentVillagerImg">
             <div>
-              <h3 class="text-xl font-medium" id="currentVillagerName">李阿婆 (粤语)</h3>
+              <h3 class="text-xl font-medium text-glow" id="currentVillagerName">李阿婆 (粤语)</h3>
               <p class="mt-2 bg-light/10 p-4 rounded-lg inline-block max-w-lg" id="villagerDialogue">后生仔，你想知乜嘢啊？我可以教你几句地道嘅广东话。</p>
             </div>
           </div>
         </div>
         
         <!-- 采集内容区 -->
-        <div class="p-6">
-          <h3 class="text-lg font-medium mb-4">请跟着念：<span class="text-primary font-bold" id="targetPhrase">食饭（吃饭）</span></h3>
+        <div class="p-6 bg-[#0F0D16]/50 rounded-2xl">
+          <div class="flex items-center mb-4">
+            <h3 class="text-lg font-medium mr-3">请跟着念：</h3>
+            <span class="text-primary font-bold text-glow" id="targetPhrase">食饭（吃饭）</span>
+            <button id="playAudioBtn" class="ml-3 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center audio-btn">
+              <i class="fa fa-volume-up"></i>
+            </button>
+          </div>
           
-          <div class="flex flex-col items-center justify-center py-8 border-2 border-dashed border-secondary/50 rounded-xl mb-6">
-            <button id="recordBtn" class="w-20 h-20 rounded-full bg-primary text-light flex items-center justify-center text-3xl hover:bg-accent transition-all shadow-lg hover:scale-105 mb-4">
+          <div class="flex flex-col items-center justify-center py-8 border-2 border-primary/50 rounded-xl mb-6 bg-light/30 shadow-glow-sm">
+            <button id="recordBtn" class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary text-dark flex items-center justify-center text-3xl hover:scale-105 transition-all shadow-glow mb-4">
               <i class="fa fa-microphone"></i>
             </button>
-            <p class="text-sm text-dark/60" id="recordStatus">点击麦克风开始录音</p>
+            <p class="text-sm text-dark/80" id="recordStatus">点击麦克风开始录音</p>
             
-            <!-- 波形动画 (录音时显示) -->
+            <!-- 波形动画 -->
             <div class="flex items-center justify-center space-x-1 mt-6 hidden" id="waveform">
-              <div class="w-1 h-3 bg-primary rounded-full animate-pulse"></div>
-              <div class="w-1 h-6 bg-primary rounded-full animate-pulse" style="animation-delay: 0.1s"></div>
-              <div class="w-1 h-8 bg-primary rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-              <div class="w-1 h-5 bg-primary rounded-full animate-pulse" style="animation-delay: 0.3s"></div>
-              <div class="w-1 h-7 bg-primary rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-              <div class="w-1 h-4 bg-primary rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
-              <div class="w-1 h-6 bg-primary rounded-full animate-pulse" style="animation-delay: 0.6s"></div>
+              <div class="w-1 h-3 bg-secondary rounded-full animate-pulse" style="animation-delay: 0s"></div>
+              <div class="w-1 h-8 bg-primary rounded-full animate-pulse" style="animation-delay: 0.1s"></div>
+              <div class="w-1 h-5 bg-gold rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+              <div class="w-1 h-7 bg-secondary rounded-full animate-pulse" style="animation-delay: 0.3s"></div>
+              <div class="w-1 h-4 bg-primary rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+              <div class="w-1 h-6 bg-gold rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+              <div class="w-1 h-3 bg-secondary rounded-full animate-pulse" style="animation-delay: 0.6s"></div>
             </div>
           </div>
           
           <!-- 识别结果 -->
           <div class="mb-6 hidden" id="resultContainer">
-            <h4 class="font-medium mb-2">识别结果：</h4>
-            <div class="bg-light border border-secondary/30 p-4 rounded-lg">
+            <h4 class="font-medium mb-2 text-glow">识别结果：</h4>
+            <div class="bg-[#0F0D16]/80 border border-primary/50 p-4 rounded-lg shadow-glow-sm">
               <div class="flex justify-between mb-2">
                 <span>方言发音：</span>
-                <span class="font-medium" id="dialectResult">食饭</span>
+                <span class="font-medium text-secondary" id="dialectResult">食饭</span>
               </div>
               <div class="flex justify-between mb-2">
                 <span>普通话对照：</span>
-                <span class="font-medium">吃饭</span>
+                <span class="font-medium text-gold" id="mandarinResult">吃饭</span>
               </div>
               <div class="flex justify-between">
                 <span>匹配度：</span>
-                <span class="font-medium text-primary" id="matchScore">85%</span>
+                <span class="font-medium text-primary text-glow" id="matchScore">85%</span>
               </div>
             </div>
           </div>
           
           <!-- 操作按钮 -->
           <div class="flex justify-between">
-            <button class="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors" id="skipBtn">
+            <button class="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary/20 transition-colors hover:shadow-glow-sm" id="skipBtn">
               跳过这句
             </button>
-            <button class="px-6 py-2 bg-primary text-light rounded-lg hover:bg-accent transition-colors" id="nextPhraseBtn" disabled>
+            <button class="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-dark rounded-lg hover:shadow-glow transition-all" id="nextPhraseBtn" disabled>
               下一句
             </button>
           </div>
@@ -295,67 +593,45 @@
     
     <!-- 文化解谜界面 -->
     <section id="puzzleScene" class="flex-1 container mx-auto px-4 py-6 hidden">
-      <button class="mb-6 flex items-center text-primary hover:text-accent transition-colors" id="backFromPuzzle">
+      <button class="mb-6 flex items-center text-primary hover:text-secondary transition-colors" id="backFromPuzzle">
         <i class="fa fa-arrow-left mr-2"></i>
         <span>返回村落</span>
       </button>
       
-      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div class="p-6 border-b border-gray-100">
-          <h2 class="text-2xl font-serif font-bold text-primary">粤语文化谜题：饮茶</h2>
-          <p class="mt-2 text-dark/70">请根据提示，选择正确的广东早茶点心组合</p>
+      <div class="bg-[#0F0D16] rounded-2xl shadow-glow overflow-hidden">
+        <div class="p-6 border-b border-primary/30">
+          <h2 class="text-2xl font-serif font-bold text-primary text-glow">方言文化谜题</h2>
+          <p class="mt-2 text-dark/70">请根据提示，选择正确答案</p>
         </div>
         
         <div class="p-6">
           <!-- 谜题说明 -->
-          <div class="bg-light border border-secondary/30 p-4 rounded-lg mb-6">
-            <p class="mb-2"><span class="font-medium">粤语词汇：</span>饮茶</p>
-            <p class="mb-2"><span class="font-medium">普通话：</span>喝茶</p>
-            <p><span class="font-medium">文化含义：</span>不仅是喝茶，更是广东人重要的社交方式，通常搭配各种精致点心。</p>
+          <div class="bg-light/10 border border-primary/30 p-4 rounded-lg mb-6">
+            <p class="mb-2"><span class="font-medium text-secondary">问题：</span>下列哪个词语是北京话中"不错"的意思？</p>
           </div>
           
           <!-- 谜题区域 -->
           <div class="mb-8">
-            <h3 class="font-medium mb-4">请选择属于广东早茶的点心（可多选）：</h3>
+            <h3 class="font-medium mb-4">请选择正确答案：</h3>
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="puzzleOptions">
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="true">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/b20f7_20251023174956.jpg" alt="虾饺" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">虾饺</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="puzzleOptions">
+              <div class="puzzle-option border border-gray-700 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors hover:bg-primary/10" data-correct="false">
+                <span>巴适</span>
               </div>
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="true">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/e13c3_20251023175851.jpg" alt="烧卖" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">烧卖</div>
+              <div class="puzzle-option border border-gray-700 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors hover:bg-primary/10" data-correct="true">
+                <span>不赖</span>
               </div>
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="false">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/96f57_20251023175734.jpg" alt="饺子" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">饺子</div>
+              <div class="puzzle-option border border-gray-700 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors hover:bg-primary/10" data-correct="false">
+                <span>老灵额</span>
               </div>
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="true">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/4a8ee_20251023175054.png" alt="肠粉" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">肠粉</div>
-              </div>
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="false">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/834eb_20251023175644.jpg" alt="包子" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">包子</div>
-              </div>
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="true">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/53dd7_20251023175559.jpg" alt="叉烧包" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">叉烧包</div>
-              </div>
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="false">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/6faf2_20251023175522.jpg" alt="粽子" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">粽子</div>
-              </div>
-              <div class="puzzle-option border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary transition-colors" data-correct="true">
-                <img src="https://simg01.gaodunwangxiao.com/uploadimgs/tmp/upload/202510/23/817c6_20251023175304.jpg" alt="蛋挞" class="w-full h-40 object-cover">
-                <div class="p-2 text-center text-sm">蛋挞</div>
+              <div class="puzzle-option border border-gray-700 rounded-lg p-4 cursor-pointer hover:border-primary transition-colors hover:bg-primary/10" data-correct="false">
+                <span>中</span>
               </div>
             </div>
           </div>
           
           <!-- 提交按钮 -->
-          <button class="w-full py-3 bg-primary text-light rounded-lg hover:bg-accent transition-colors" id="submitPuzzle">
+          <button class="w-full py-3 bg-gradient-to-r from-primary to-secondary text-dark rounded-lg hover:shadow-glow transition-colors" id="submitPuzzle">
             提交答案
           </button>
         </div>
@@ -364,20 +640,20 @@
     
     <!-- 排行榜界面 -->
     <section id="rankScene" class="flex-1 container mx-auto px-4 py-6 hidden">
-      <button class="mb-6 flex items-center text-primary hover:text-accent transition-colors" id="backFromRank">
+      <button class="mb-6 flex items-center text-primary hover:text-secondary transition-colors" id="backFromRank">
         <i class="fa fa-arrow-left mr-2"></i>
         <span>返回村落</span>
       </button>
       
-      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div class="p-6 border-b border-gray-100">
-          <h2 class="text-2xl font-serif font-bold text-primary">方言守护者排行榜</h2>
-          <p class="mt-1 text-dark/70">看看谁收集的方言最多，解开的谜题最棒！</p>
+      <div class="bg-[#0F0D16] rounded-2xl shadow-glow overflow-hidden">
+        <div class="p-6 border-b border-primary/30">
+          <h2 class="text-2xl font-serif font-bold text-primary text-glow">方言守护者排行榜</h2>
+          <p class="mt-1 text-dark/70">看看谁收集的方言最多，修复的山河最完整！</p>
         </div>
         
         <div class="p-6">
           <!-- 排行榜标签 -->
-          <div class="flex border-b border-gray-200 mb-6">
+          <div class="flex border-b border-primary/30 mb-6">
             <button class="px-4 py-2 font-medium text-primary border-b-2 border-primary" id="localRankTab">本地排行</button>
             <button class="px-4 py-2 font-medium text-dark/60 hover:text-primary" id="globalRankTab">全国排行</button>
           </div>
@@ -385,88 +661,88 @@
           <!-- 排行榜列表 -->
           <div class="space-y-4" id="rankList">
             <!-- 前三名特殊样式 -->
-            <div class="flex items-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <div class="w-8 h-8 bg-yellow-400 text-dark rounded-full flex items-center justify-center font-bold mr-4">1</div>
-              <img src="https://picsum.photos/id/64/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4">
+            <div class="flex items-center p-4 rank-top-1 rounded-lg bg-light/5">
+              <div class="w-8 h-8 bg-gradient-to-r from-primary to-secondary text-dark rounded-full flex items-center justify-center font-bold mr-4 shadow-glow-sm">1</div>
+              <img src="https://picsum.photos/id/64/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4 border border-gold">
               <div class="flex-1">
                 <div class="font-medium">陈小华</div>
-                <div class="text-sm text-dark/60">收集了42种方言</div>
+                <div class="text-sm text-dark/60">收集了42种方言，修复14个元素</div>
               </div>
               <div class="text-right">
-                <div class="font-bold text-primary">985分</div>
-                <div class="text-xs text-dark/60">粤语大师</div>
+                <div class="font-bold text-primary text-glow">985分</div>
+                <div class="text-xs text-dark/60">山河守护者</div>
               </div>
             </div>
             
-            <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div class="w-8 h-8 bg-gray-300 text-dark rounded-full flex items-center justify-center font-bold mr-4">2</div>
-              <img src="https://picsum.photos/id/91/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4">
+            <div class="flex items-center p-4 rank-top-2 rounded-lg bg-light/5">
+              <div class="w-8 h-8 bg-secondary text-dark rounded-full flex items-center justify-center font-bold mr-4">2</div>
+              <img src="https://picsum.photos/id/91/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4 border border-secondary/50">
               <div class="flex-1">
                 <div class="font-medium">李大勇</div>
-                <div class="text-sm text-dark/60">收集了38种方言</div>
+                <div class="text-sm text-dark/60">收集了38种方言，修复12个元素</div>
               </div>
               <div class="text-right">
-                <div class="font-bold text-primary">920分</div>
-                <div class="text-xs text-dark/60">川话达人</div>
+                <div class="font-bold text-secondary">920分</div>
+                <div class="text-xs text-dark/60">方言达人</div>
               </div>
             </div>
             
-            <div class="flex items-center p-4 bg-amber-50 rounded-lg border border-amber-200">
-              <div class="w-8 h-8 bg-amber-600 text-light rounded-full flex items-center justify-center font-bold mr-4">3</div>
-              <img src="https://picsum.photos/id/22/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4">
+            <div class="flex items-center p-4 rank-top-3 rounded-lg bg-light/5">
+              <div class="w-8 h-8 bg-gold text-dark rounded-full flex items-center justify-center font-bold mr-4">3</div>
+              <img src="https://picsum.photos/id/22/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4 border border-gold/50">
               <div class="flex-1">
                 <div class="font-medium">王小花</div>
-                <div class="text-sm text-dark/60">收集了35种方言</div>
+                <div class="text-sm text-dark/60">收集了32种方言，修复10个元素</div>
               </div>
               <div class="text-right">
-                <div class="font-bold text-primary">875分</div>
-                <div class="text-xs text-dark/60">吴语能手</div>
+                <div class="font-bold text-gold">875分</div>
+                <div class="text-xs text-dark/60">文化使者</div>
               </div>
             </div>
             
             <!-- 其他排名 -->
-            <div class="flex items-center p-4 hover:bg-gray-50 rounded-lg transition-colors">
-              <div class="w-8 h-8 bg-gray-200 text-dark rounded-full flex items-center justify-center font-bold mr-4">4</div>
+            <div class="flex items-center p-4 hover:bg-primary/5 rounded-lg transition-colors">
+              <div class="w-8 h-8 bg-gray-700 text-dark rounded-full flex items-center justify-center font-bold mr-4">4</div>
               <img src="https://picsum.photos/id/29/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4">
               <div class="flex-1">
                 <div class="font-medium">赵小明</div>
-                <div class="text-sm text-dark/60">收集了30种方言</div>
+                <div class="text-sm text-dark/60">收集了28种方言，修复8个元素</div>
               </div>
               <div class="text-right">
                 <div class="font-bold text-primary">820分</div>
-                <div class="text-xs text-dark/60">闽语新秀</div>
+                <div class="text-xs text-dark/60">方言爱好者</div>
               </div>
             </div>
             
-            <div class="flex items-center p-4 hover:bg-gray-50 rounded-lg transition-colors">
-              <div class="w-8 h-8 bg-gray-200 text-dark rounded-full flex items-center justify-center font-bold mr-4">5</div>
+            <div class="flex items-center p-4 hover:bg-primary/5 rounded-lg transition-colors">
+              <div class="w-8 h-8 bg-gray-700 text-dark rounded-full flex items-center justify-center font-bold mr-4">5</div>
               <img src="https://picsum.photos/id/33/100/100" alt="玩家头像" class="w-10 h-10 rounded-full mr-4">
               <div class="flex-1">
                 <div class="font-medium">我</div>
-                <div class="text-sm text-dark/60">收集了5种方言</div>
+                <div class="text-sm text-dark/60">收集了0种方言，修复0个元素</div>
               </div>
               <div class="text-right">
-                <div class="font-bold text-primary">150分</div>
+                <div class="font-bold text-primary">0分</div>
                 <div class="text-xs text-dark/60">初学者</div>
               </div>
             </div>
           </div>
           
           <!-- 我的成就 -->
-          <div class="mt-8 p-4 bg-light rounded-lg border border-secondary/30">
+          <div class="mt-8 p-4 bg-light/10 rounded-lg border border-primary/30">
             <h3 class="font-medium mb-3">我的成就</h3>
             <div class="grid grid-cols-3 gap-2">
-              <div class="bg-white rounded p-3 text-center text-sm">
-                <div class="text-primary font-bold mb-1">5</div>
+              <div class="bg-[#0F0D16] rounded p-3 text-center text-sm">
+                <div class="text-primary font-bold mb-1">0</div>
                 <div>方言收集</div>
               </div>
-              <div class="bg-white rounded p-3 text-center text-sm">
-                <div class="text-primary font-bold mb-1">2</div>
+              <div class="bg-[#0F0D16] rounded p-3 text-center text-sm">
+                <div class="text-primary font-bold mb-1">0</div>
                 <div>谜题解开</div>
               </div>
-              <div class="bg-white rounded p-3 text-center text-sm">
-                <div class="text-primary font-bold mb-1">1</div>
-                <div>建筑修复</div>
+              <div class="bg-[#0F0D16] rounded p-3 text-center text-sm">
+                <div class="text-primary font-bold mb-1">0</div>
+                <div>修复元素</div>
               </div>
             </div>
           </div>
@@ -475,21 +751,21 @@
     </section>
     
     <!-- 成功提示弹窗 -->
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-dark/50 backdrop-blur hidden" id="successModal">
-      <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0" id="modalContent">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-dark/30 backdrop-blur hidden" id="successModal">
+      <div class="bg-[#0F0D16] rounded-xl p-6 max-w-md w-full mx-4 shadow-glow transform transition-all duration-500" id="modalContent">
         <div class="text-center">
-          <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa fa-check text-2xl text-primary"></i>
+          <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
+            <i class="fa fa-check text-2xl text-secondary text-glow"></i>
           </div>
-          <h3 class="text-xl font-bold text-primary mb-2" id="modalTitle">采集成功！</h3>
-          <p class="text-dark/70 mb-6" id="modalMessage">你成功收集了"食饭"这个粤语词汇，村落修复进度+5%</p>
+          <h3 class="text-xl font-bold text-primary mb-2 text-glow" id="modalTitle">采集成功！</h3>
+          <p class="text-dark/80 mb-6" id="modalMessage">你成功收集了"食饭"这个粤语词汇，解锁了广东地区！</p>
           
-          <!-- 建筑修复动画 -->
-          <div class="mb-6 h-32 overflow-hidden rounded-lg hidden" id="buildingAnimation">
-            <img src="https://picsum.photos/id/1053/400/200" alt="祠堂修复" class="w-full h-full object-cover grayscale" id="repairingImage">
+          <!-- 解锁动画 -->
+          <div class="mb-6 h-32 overflow-hidden rounded-lg hidden" id="unlockAnimation">
+            <img src="" alt="解锁元素" class="w-full h-full object-cover grayscale transition-all duration-1000" id="unlockingImage">
           </div>
           
-          <button class="w-full bg-primary hover:bg-accent text-light py-3 rounded-lg transition-colors font-medium" id="modalConfirmBtn">
+          <button class="w-full bg-gradient-to-r from-primary to-secondary text-dark py-3 rounded-lg transition-colors font-medium hover:shadow-glow" id="modalConfirmBtn">
             继续探索
           </button>
         </div>
@@ -498,40 +774,99 @@
   </main>
 
   <!-- 页脚 -->
-  <footer class="bg-dark text-light py-6">
+  <footer class="bg-[#0F0D16] text-dark py-6 border-t border-primary/30">
     <div class="container mx-auto px-4">
       <div class="flex flex-col md:flex-row justify-between items-center">
         <div class="mb-4 md:mb-0">
           <div class="flex items-center space-x-2 justify-center md:justify-start">
             <i class="fa fa-microphone text-secondary"></i>
-            <span class="font-serif font-bold">方言文化守护者</span>
+            <span class="font-serif font-bold text-glow">方言聚山河</span>
           </div>
-          <p class="text-sm text-light/60 mt-2 text-center md:text-left">传承方言文化，连接地域情感</p>
+          <p class="text-sm text-dark/60 mt-2 text-center md:text-left">方言连山河，文化永流传</p>
         </div>
         
         <div class="flex space-x-6">
-          <a href="#" class="text-light/80 hover:text-secondary transition-colors">
+          <a href="#" class="text-dark/80 hover:text-secondary transition-colors">
             <i class="fa fa-question-circle"></i>
             <span class="ml-1">帮助中心</span>
           </a>
-          <a href="#" class="text-light/80 hover:text-secondary transition-colors">
+          <a href="#" class="text-dark/80 hover:text-secondary transition-colors">
             <i class="fa fa-info-circle"></i>
             <span class="ml-1">关于我们</span>
           </a>
-          <a href="#" class="text-light/80 hover:text-secondary transition-colors">
+          <a href="#" class="text-dark/80 hover:text-secondary transition-colors">
             <i class="fa fa-share-alt"></i>
             <span class="ml-1">分享</span>
           </a>
         </div>
       </div>
       
-      <div class="mt-6 pt-6 border-t border-light/10 text-center text-sm text-light/40">
-        © 2023 方言文化守护者 - 保护方言，传承文化
+      <div class="mt-6 pt-6 border-t border-dark/10 text-center text-sm text-dark/40">
+        © 2023 方言聚山河 - 保护方言，传承文化
       </div>
     </div>
   </footer>
 
   <script>
+    // 初始化粒子背景
+    const initVillageParticles = () => {
+      const canvas = document.getElementById('villageParticles');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.offsetWidth;
+      const height = canvas.offsetHeight;
+      canvas.width = width;
+      canvas.height = height;
+      
+      // 粒子数组
+      const particles = [];
+      const particleCount = 100;
+      
+      // 创建粒子
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 2.5 + 0.3,
+          speedX: Math.random() * 0.3 - 0.15,
+          speedY: Math.random() * 0.3 - 0.15,
+          color: Math.random() > 0.7 ? '#DAA520' : '#228B22', // 金色和绿色粒子
+          opacity: Math.random() * 0.6 + 0.2
+        });
+      }
+      
+      // 绘制粒子
+      const drawParticles = () => {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach((particle, i) => {
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+          ctx.fillStyle = `${particle.color}${Math.floor(particle.opacity * 255).toString(16)}`;
+          ctx.fill();
+          
+          // 粒子移动
+          particle.x += particle.speedX;
+          particle.y += particle.speedY;
+          
+          // 边界反弹
+          if (particle.x < 0 || particle.x > width) particle.speedX *= -1;
+          if (particle.y < 0 || particle.y > height) particle.speedY *= -1;
+          
+          // 透明度波动
+          particle.opacity = Math.sin(Date.now() * 0.0008 + i) * 0.3 + 0.35;
+        });
+        requestAnimationFrame(drawParticles);
+      };
+      
+      drawParticles();
+      
+      // 窗口 resize 时重置画布
+      window.addEventListener('resize', () => {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      });
+    };
+    
     // 页面元素引用
     const introModal = document.getElementById('introModal');
     const startBtn = document.getElementById('startBtn');
@@ -539,13 +874,26 @@
     const collectScene = document.getElementById('collectScene');
     const puzzleScene = document.getElementById('puzzleScene');
     const rankScene = document.getElementById('rankScene');
+    const victoryScene = document.getElementById('victoryScene');
     const backToVillage = document.getElementById('backToVillage');
     const backFromPuzzle = document.getElementById('backFromPuzzle');
     const backFromRank = document.getElementById('backFromRank');
     const collectBtn = document.getElementById('collectBtn');
     const puzzleBtn = document.getElementById('puzzleBtn');
     const puzzleMarker = document.getElementById('puzzleMarker');
-    const villagers = [document.getElementById('villager1'), document.getElementById('villager2')];
+    const villagers = [
+      document.getElementById('villager1'), 
+      document.getElementById('villager2'),
+      document.getElementById('villager3'),
+      document.getElementById('villager4'),
+      document.getElementById('villager5'),
+      document.getElementById('villager6'),
+      document.getElementById('villager7'),
+      document.getElementById('villager8'),
+      document.getElementById('villager9'),
+      document.getElementById('villager10'),
+      document.getElementById('villager11')
+    ];
     const rankBtn = document.getElementById('rankBtn');
     const mobileRankBtn = document.getElementById('mobileRankBtn');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -559,30 +907,60 @@
     const waveform = document.getElementById('waveform');
     const resultContainer = document.getElementById('resultContainer');
     const dialectResult = document.getElementById('dialectResult');
+    const mandarinResult = document.getElementById('mandarinResult');
     const matchScore = document.getElementById('matchScore');
     const nextPhraseBtn = document.getElementById('nextPhraseBtn');
     const skipBtn = document.getElementById('skipBtn');
     const puzzleOptions = document.querySelectorAll('.puzzle-option');
     const submitPuzzle = document.getElementById('submitPuzzle');
     const successModal = document.getElementById('successModal');
-    const modalContent = document.getElementById('modalContent');
     const modalTitle = document.getElementById('modalTitle');
     const modalMessage = document.getElementById('modalMessage');
-    const buildingAnimation = document.getElementById('buildingAnimation');
-    const repairingImage = document.getElementById('repairingImage');
+    const unlockAnimation = document.getElementById('unlockAnimation');
+    const unlockingImage = document.getElementById('unlockingImage');
     const modalConfirmBtn = document.getElementById('modalConfirmBtn');
     const restorationProgress = document.getElementById('restorationProgress');
+    const progressPercent = document.getElementById('progressPercent');
+    const unlockedCount = document.getElementById('unlockedCount');
     const collectedCount = document.getElementById('collectedCount');
     const mainHeader = document.getElementById('mainHeader');
+    const playAudioBtn = document.getElementById('playAudioBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const chinaMap = document.getElementById('chinaMap');
+    const unlockedDialects = document.getElementById('unlockedDialects');
+    const chinaMapFinal = document.getElementById('chinaMapFinal');
     
     // 游戏数据
     let gameData = {
-      collectedPhrases: 5,
-      totalPhrases: 50,
-      restorationPercentage: 15,
+      collectedPhrases: 0,
+      totalPhrases: 48,
+      unlockedElements: 0,
+      totalElements: 15,
+      restorationPercentage: 0,
       currentDialect: 'cantonese',
       currentPhraseIndex: 0,
       selectedPuzzleOptions: [],
+      unlockedDialectList: [],
+      // 各层级修复状态
+      restorationStatus: {
+        buildings: {},
+        landscapes: {},
+        symbols: {}
+      },
+      // 方言-省份映射
+      dialectProvinceMap: {
+        cantonese: 'guangdong',
+        sichuan: 'sichuan',
+        beijing: 'beijing',
+        northeast: 'liaoning',
+        shanghai: 'shanghai',
+        wenzhou: 'zhejiang',
+        changsha: 'hunan',
+        xinjiang: 'xinjiang',
+        henan: 'henan',
+        anhui: 'anhui',
+        tianjin: 'tianjin'
+      },
       phrases: {
         cantonese: [
           { dialect: '食饭', mandarin: '吃饭', dialogue: '后生仔，"食饭"系广东话吃饭嘅意思，你嚟试下讲啦。' },
@@ -595,20 +973,77 @@
           { dialect: '摆龙门阵', mandarin: '聊天', dialogue: '我们四川人喜欢"摆龙门阵"，就是大家一起聊天的意思。' },
           { dialect: '巴适', mandarin: '舒适', dialogue: '如果觉得很舒服，我们就会说"巴适得板"，你学会了吗？' },
           { dialect: '要得', mandarin: '好的', dialogue: '"要得"就是好的意思，答应别人的时候就可以这么说。' }
+        ],
+        beijing: [
+          { dialect: '吃了吗您', mandarin: '您吃了吗', dialogue: '北京人见面常说"吃了吗您"，这是种问候，不一定真问吃饭。' },
+          { dialect: '溜达', mandarin: '散步', dialogue: '吃完饭出去"溜达溜达"，就是散步，老北京都爱这么说。' },
+          { dialect: '嗝儿屁', mandarin: '完蛋', dialogue: '"这东西嗝儿屁了"，就是说东西坏了、完蛋了的意思。' },
+          { dialect: '劳驾', mandarin: '麻烦您', dialogue: '想请人帮忙说"劳驾"，是北京话里客气的说法。' }
+        ],
+        xinjiang: [
+          { dialect: '谝传子', mandarin: '聊天', dialogue: '我们新疆人没事就爱"谝传子"，就是坐一起聊天拉家常的意思。' },
+          { dialect: '肚子胀', mandarin: '生气', dialogue: '你别"肚子胀"嘛，这点小事不值得生气，咱们好好说。' },
+          { dialect: '皮芽子', mandarin: '洋葱', dialogue: '新疆炒米粉里少不了"皮芽子"，就是洋葱，提味得很！' },
+          { dialect: '儿娃子', mandarin: '小伙子', dialogue: '那个"儿娃子"很能干，地里的活干得又快又好。' }
+        ],
+        henan: [
+          { dialect: '中', mandarin: '好的', dialogue: '你问我中不中？我说"中"！这就是河南话里"好的"的意思。' },
+          { dialect: '怼', mandarin: '吃/做', dialogue: '到饭点了，咱"怼"碗面条吧，"怼"在河南话里能指吃或做。' },
+          { dialect: '得劲', mandarin: '舒服', dialogue: '这天儿躺树荫下，真"得劲"！就是说特别舒服自在。' },
+          { dialect: '夜黑儿', mandarin: '昨天晚上', dialogue: '"夜黑儿"我看了场电影，就是昨天晚上的意思。' }
+        ],
+        anhui: [
+          { dialect: '搞么事', mandarin: '干什么', dialogue: '你在"搞么事"啊？就是问你在干什么，安徽人常这么说。' },
+          { dialect: '不照', mandarin: '不行', dialogue: '这个办法"不照"，得换个思路，"不照"就是不行、不可以。' },
+          { dialect: '巴适', mandarin: '舒服', dialogue: '坐这沙发上真"巴适"，安徽话里也用这个词说舒服。' },
+          { dialect: '噶来', mandarin: '回家', dialogue: '天晚了，我要"噶来"了，就是我要回家了的意思。' }
+        ],
+        tianjin: [
+          { dialect: '嘛呢', mandarin: '干什么', dialogue: '你"嘛呢"？这是天津话最常用的，就是问你干什么呢。' },
+          { dialect: '逗你玩', mandarin: '开玩笑', dialogue: '别当真，我"逗你玩"呢！天津人爱说这个开开玩笑。' },
+          { dialect: '愣子', mandarin: '傻子', dialogue: '你别跟个"愣子"似的，就是说别像傻子一样不明白。' },
+          { dialect: '耐人', mandarin: '可爱', dialogue: '这小孩真"耐人"，就是说这小孩特别可爱，招人喜欢。' }
+        ],
+        northeast: [
+          { dialect: '唠嗑', mandarin: '聊天', dialogue: '咱东北人就喜欢聚在一起"唠嗑"，啥都能聊上半天。' },
+          { dialect: '嘎哈', mandarin: '干什么', dialogue: '"你嘎哈呢？"就是问"你干什么呢？"，这是咱东北常用的说法。' },
+          { dialect: '贼拉', mandarin: '非常', dialogue: '说啥东西"贼拉好吃"，就是说那东西非常好吃的意思。' },
+          { dialect: '得瑟', mandarin: '炫耀', dialogue: '别老在那儿"得瑟"，就是说别总炫耀，东北人看不惯这个。' }
+        ],
+        shanghai: [
+          { dialect: '吾', mandarin: '我', dialogue: '上海话里"吾"就是"我"的意思，你学会了吗？' },
+          { dialect: '侬', mandarin: '你', dialogue: '"侬好啊"就是"你好啊"，上海人见面都这么打招呼。' },
+          { dialect: '阿拉', mandarin: '我们', dialogue: '"阿拉上海"就是"我们上海"，阿拉是我们的意思。' },
+          { dialect: '晓得', mandarin: '知道', dialogue: '"吾晓得"就是"我知道"，这是很常用的上海话。' }
+        ],
+        wenzhou: [
+          { dialect: '食天光', mandarin: '吃早饭', dialogue: '温州人说"食天光"就是吃早饭的意思，很形象吧？' },
+          { dialect: '嬉', mandarin: '玩', dialogue: '"去哪里嬉？"就是问"去哪里玩？"，这是温州人常说的。' },
+          { dialect: '眙', mandarin: '看', dialogue: '"眙电视"就是"看电视"，温州话是不是很特别？' },
+          { dialect: '日昼', mandarin: '中午', dialogue: '"日昼"就是中午的意思，到了日昼就要食日昼饭咯。' }
+        ],
+        changsha: [
+          { dialect: '呷饭', mandarin: '吃饭', dialogue: '长沙人说"呷饭"就是吃饭的意思，"呷"字很有特色吧？' },
+          { dialect: '何解', mandarin: '为什么', dialogue: '"你何解要这样做？"就是问"你为什么要这样做？"' },
+          { dialect: '要得', mandarin: '好的', dialogue: '长沙话也说"要得"，表示同意、可以的意思。' },
+          { dialect: '何式', mandarin: '怎么样', dialogue: '"这个东西何式？"就是问"这个东西怎么样？"' }
         ]
       }
     };
     
     // 初始化页面
     document.addEventListener('DOMContentLoaded', () => {
-      // 为导航栏添加滚动效果
+      // 初始化粒子动画
+      initVillageParticles();
+      
+      // 导航栏滚动效果
       window.addEventListener('scroll', () => {
         if (window.scrollY > 20) {
-          mainHeader.classList.add('py-2', 'shadow-md');
+          mainHeader.classList.add('scrolled', 'py-2', 'shadow-glow-sm');
           mainHeader.classList.remove('py-3');
         } else {
+          mainHeader.classList.remove('scrolled', 'py-2', 'shadow-glow-sm');
           mainHeader.classList.add('py-3');
-          mainHeader.classList.remove('py-2', 'shadow-md');
         }
       });
       
@@ -617,16 +1052,96 @@
         mobileMenu.classList.toggle('hidden');
       });
 
-      // 检查浏览器是否支持语音识别
+      // 检查浏览器语音识别支持
       checkSpeechSupport();
+      
+      // 绑定播放按钮事件
+      playAudioBtn.addEventListener('click', playCurrentDialectAudio);
+      
+      // 地图省份点击事件
+      document.querySelectorAll('.map-province').forEach(province => {
+        province.addEventListener('click', () => {
+          const dialect = province.getAttribute('data-dialect');
+          if (dialect) {
+            const villager = villagers.find(v => v.getAttribute('data-dialect') === dialect);
+            if (villager) {
+              const imgSrc = villager.querySelector('img').src;
+              const name = villager.querySelector('div').textContent;
+              enterCollectScene(dialect, imgSrc, name);
+            }
+          }
+        });
+      });
+      
+      // 重新开始游戏
+      restartBtn.addEventListener('click', () => {
+        // 重置游戏数据
+        gameData = {
+          collectedPhrases: 0,
+          totalPhrases: 48,
+          unlockedElements: 0,
+          totalElements: 15,
+          restorationPercentage: 0,
+          currentDialect: 'cantonese',
+          currentPhraseIndex: 0,
+          selectedPuzzleOptions: [],
+          unlockedDialectList: [],
+          restorationStatus: {
+            buildings: {},
+            landscapes: {},
+            symbols: {}
+          },
+          dialectProvinceMap: gameData.dialectProvinceMap,
+          phrases: gameData.phrases
+        };
+        
+        // 更新UI
+        updateProgress();
+        resetVillageElements();
+        resetMap();
+        victoryScene.classList.add('hidden');
+        showScene(villageScene);
+      });
     });
+    
+    // 播放当前方言短语
+    function playCurrentDialectAudio() {
+      const SpeechSynthesis = window.speechSynthesis;
+      if (!SpeechSynthesis) return;
+      
+      // 如果正在播放，先停止
+      if (SpeechSynthesis.speaking) {
+        SpeechSynthesis.cancel();
+        playAudioBtn.classList.remove('playing');
+        return;
+      }
+      
+      const phrases = gameData.phrases[gameData.currentDialect];
+      if (gameData.currentPhraseIndex < phrases.length) {
+        const phrase = phrases[gameData.currentPhraseIndex];
+        const utterance = new SpeechSynthesisUtterance(phrase.dialect);
+        utterance.lang = 'zh-CN';
+        utterance.pitch = 1.0;
+        utterance.rate = 0.9;
+        
+        // 播放状态样式
+        playAudioBtn.classList.add('playing');
+        
+        // 播放结束回调
+        utterance.onend = () => {
+          playAudioBtn.classList.remove('playing');
+        };
+        
+        // 开始播放
+        SpeechSynthesis.speak(utterance);
+      }
+    }
     
     // 检查浏览器语音识别支持
     function checkSpeechSupport() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         alert('您的浏览器不支持语音识别功能，请使用Chrome浏览器以获得最佳体验');
-        // 禁用录音按钮
         recordBtn.disabled = true;
         recordBtn.classList.add('opacity-50', 'cursor-not-allowed');
         recordStatus.textContent = '您的浏览器不支持语音识别';
@@ -647,8 +1162,13 @@
       collectScene.classList.add('hidden');
       puzzleScene.classList.add('hidden');
       rankScene.classList.add('hidden');
-      
       scene.classList.remove('hidden');
+      
+      // 切换场景时停止语音播放
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        playAudioBtn.classList.remove('playing');
+      }
     }
     
     // 返回村落
@@ -671,13 +1191,41 @@
     villagers.forEach(villager => {
       villager.addEventListener('click', () => {
         const dialect = villager.getAttribute('data-dialect');
-        enterCollectScene(dialect, villager.querySelector('img').src, villager.querySelector('div').textContent);
+        const imgSrc = villager.querySelector('img').src;
+        const name = villager.querySelector('div').textContent;
+        enterCollectScene(dialect, imgSrc, name);
       });
     });
     
-    // 从按钮进入采集界面（默认粤语）
+    // 方言采集按钮逻辑
     collectBtn.addEventListener('click', () => {
-      enterCollectScene('cantonese', 'https://picsum.photos/id/64/100/100', '李阿婆 (粤语)');
+      // 查找第一个未完成的方言
+      const firstUncompletedDialect = Object.keys(gameData.phrases).find(dialect => 
+        !gameData.unlockedDialectList.includes(dialect)
+      );
+      
+      if (firstUncompletedDialect) {
+        // 根据方言类型获取对应的村民信息
+        const villagerInfo = {
+          cantonese: { img: 'https://picsum.photos/id/64/100/100', name: '李阿婆 (粤语)' },
+          sichuan: { img: 'https://picsum.photos/id/91/100/100', name: '张大爷 (四川话)' },
+          beijing: { img: 'https://picsum.photos/id/22/100/100', name: '王大爷 (北京话)' },
+          northeast: { img: 'https://picsum.photos/id/29/100/100', name: '赵大哥 (东北话)' },
+          shanghai: { img: 'https://picsum.photos/id/33/100/100', name: '陈阿姨 (上海话)' },
+          wenzhou: { img: 'https://picsum.photos/id/54/100/100', name: '林老板 (温州话)' },
+          changsha: { img: 'https://picsum.photos/id/65/100/100', name: '刘娭毑 (长沙话)' },
+          xinjiang: { img: 'https://picsum.photos/id/177/100/100', name: '马大叔 (新疆话)' },
+          henan: { img: 'https://picsum.photos/id/342/100/100', name: '李大爷 (河南话)' },
+          anhui: { img: 'https://picsum.photos/id/433/100/100', name: '张阿姨 (安徽话)' },
+          tianjin: { img: 'https://picsum.photos/id/554/100/100', name: '王大哥 (天津话)' }
+        };
+        
+        const info = villagerInfo[firstUncompletedDialect];
+        enterCollectScene(firstUncompletedDialect, info.img, info.name);
+      } else {
+        alert('恭喜！所有方言已收集完成，即将解锁完整山河图！');
+        triggerVictoryAnimation();
+      }
     });
     
     // 进入采集界面
@@ -707,28 +1255,56 @@
         const phrase = phrases[gameData.currentPhraseIndex];
         targetPhrase.textContent = `${phrase.dialect}（${phrase.mandarin}）`;
         villagerDialogue.textContent = phrase.dialogue;
+        
+        // 重置识别结果区域
+        resultContainer.classList.add('hidden');
+        dialectResult.textContent = '';
+        mandarinResult.textContent = '';
+        matchScore.textContent = '';
+        recordStatus.textContent = '点击麦克风开始录音';
+        waveform.classList.add('hidden');
+        nextPhraseBtn.disabled = true;
+        
+        // 重置音频按钮状态
+        playAudioBtn.classList.remove('playing');
       } else {
-        // 所有短语收集完毕，返回村落
-        showSuccessModal('恭喜！', `你已成功收集完所有${currentVillagerName.textContent.split(' ')[1]}短语，村落修复进度+10%`, true);
+        // 标记当前方言为已完成
+        if (!gameData.unlockedDialectList.includes(gameData.currentDialect)) {
+          gameData.unlockedDialectList.push(gameData.currentDialect);
+          updateUnlockedDialectsList();
+        }
+        
+        // 解锁对应省份
+        unlockProvince(gameData.currentDialect);
+        
+        // 显示全部完成提示
+        showSuccessModal(
+          '方言收集完成！', 
+          `你已成功收集完所有${currentVillagerName.textContent.split(' ')[1]}短语`, 
+          true,
+          `全部${currentVillagerName.textContent.split(' ')[1]}短语`
+        );
       }
     }
     
     // 语音识别功能实现
     recordBtn.addEventListener('click', () => {
-      // 获取语音识别构造函数（兼容不同浏览器）
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         alert('您的浏览器不支持语音识别功能');
         return;
       }
       
-      // 创建识别实例
-      const recognition = new SpeechRecognition();
+      // 停止任何正在播放的语音
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        playAudioBtn.classList.remove('playing');
+      }
       
-      // 配置识别参数
-      recognition.lang = 'zh-CN'; // 设置为中文
-      recognition.interimResults = false; // 不返回临时结果
-      recognition.maxAlternatives = 1; // 只返回一个最可能的结果
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'zh-CN';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
       
       // 更新UI状态
       recordStatus.textContent = '正在录音...请对着麦克风说出短语';
@@ -740,19 +1316,15 @@
       
       // 识别成功处理
       recognition.onresult = (event) => {
-        // 获取识别结果
         const speechResult = event.results[0][0].transcript.trim();
-        
-        // 获取当前目标短语
         const phrases = gameData.phrases[gameData.currentDialect];
         const currentPhrase = phrases[gameData.currentPhraseIndex];
         
-        // 计算匹配度（简单逻辑：包含方言或普通话关键词）
+        // 计算匹配度
         const dialectWords = currentPhrase.dialect.split('');
         const mandarinWords = currentPhrase.mandarin.split('');
         const resultWords = speechResult.split('');
         
-        // 计算匹配的字符数
         let matchCount = 0;
         resultWords.forEach(word => {
           if (dialectWords.includes(word) || mandarinWords.includes(word)) {
@@ -760,18 +1332,18 @@
           }
         });
         
-        // 计算匹配度百分比（至少50%才认为有效）
         const totalWords = Math.max(dialectWords.length, resultWords.length);
         let score = totalWords > 0 ? Math.round((matchCount / totalWords) * 100) : 0;
-        score = Math.max(50, Math.min(95, score)); // 限制在50-95之间
+        score = Math.max(50, Math.min(95, score));
         
         // 更新UI显示结果
         waveform.classList.add('hidden');
         resultContainer.classList.remove('hidden');
         dialectResult.textContent = speechResult;
+        mandarinResult.textContent = currentPhrase.mandarin;
         matchScore.textContent = `${score}%`;
         recordStatus.textContent = '点击麦克风重新录音';
-        nextPhraseBtn.disabled = score < 60; // 60分以上才允许继续
+        nextPhraseBtn.disabled = score < 60;
         recordBtn.disabled = false;
       };
       
@@ -805,91 +1377,101 @@
     
     // 下一句短语
     nextPhraseBtn.addEventListener('click', () => {
-      gameData.currentPhraseIndex++;
       gameData.collectedPhrases++;
-      gameData.restorationPercentage += 5;
+      gameData.restorationPercentage = Math.round((gameData.unlockedElements / gameData.totalElements) * 100);
       
       // 更新进度
-      collectedCount.textContent = `已收集方言：${gameData.collectedPhrases}/${gameData.totalPhrases}`;
-      restorationProgress.style.width = `${gameData.restorationPercentage}%`;
+      updateProgress();
+      
+      // 检查是否解锁新元素
+      checkAndUnlockElements();
       
       // 显示成功提示
       const phrases = gameData.phrases[gameData.currentDialect];
-      const currentPhrase = phrases[gameData.currentPhraseIndex - 1];
-      showSuccessModal('采集成功！', `你成功收集了"${currentPhrase.dialect}"这个词汇，村落修复进度+5%`);
+      const currentPhrase = phrases[gameData.currentPhraseIndex];
+      
+      // 解锁当前方言对应的省份标记
+      if (gameData.currentPhraseIndex === 0) {
+        unlockProvince(gameData.currentDialect, true);
+      }
+      
+      showSuccessModal('采集成功！', `你成功收集了"${currentPhrase.dialect}"这个词汇`);
     });
     
     // 跳过短语
     skipBtn.addEventListener('click', () => {
       gameData.currentPhraseIndex++;
       loadPhrase();
-      
-      // 重置录音状态
-      recordStatus.textContent = '点击麦克风开始录音';
-      waveform.classList.add('hidden');
-      resultContainer.classList.add('hidden');
-      nextPhraseBtn.disabled = true;
     });
     
     // 谜题选项选择
     puzzleOptions.forEach(option => {
       option.addEventListener('click', () => {
-        option.classList.toggle('border-primary');
-        option.classList.toggle('bg-primary/5');
+        // 单选题逻辑，只能选一个
+        puzzleOptions.forEach(opt => {
+          opt.classList.remove('border-primary', 'bg-primary/10');
+        });
+        option.classList.add('border-primary', 'bg-primary/10');
         
-        const isSelected = option.classList.contains('border-primary');
         const optionIndex = Array.from(puzzleOptions).indexOf(option);
-        
-        if (isSelected && !gameData.selectedPuzzleOptions.includes(optionIndex)) {
-          gameData.selectedPuzzleOptions.push(optionIndex);
-        } else if (!isSelected && gameData.selectedPuzzleOptions.includes(optionIndex)) {
-          gameData.selectedPuzzleOptions = gameData.selectedPuzzleOptions.filter(index => index !== optionIndex);
-        }
+        gameData.selectedPuzzleOptions = [optionIndex];
       });
     });
     
     // 提交谜题答案
     submitPuzzle.addEventListener('click', () => {
       if (gameData.selectedPuzzleOptions.length === 0) {
-        alert('请至少选择一个选项');
+        alert('请选择一个答案');
         return;
       }
       
-      // 检查答案（正确选项索引：0,1,3,5,7）
-      const correctOptions = [0,1,3,5,7];
-      const isAllCorrect = gameData.selectedPuzzleOptions.every(index => correctOptions.includes(index)) && 
-                          gameData.selectedPuzzleOptions.length === correctOptions.length;
+      const correctOption = 1; // 正确答案索引
+      const isCorrect = gameData.selectedPuzzleOptions[0] === correctOption;
       
-      if (isAllCorrect) {
-        gameData.restorationPercentage += 10;
-        restorationProgress.style.width = `${gameData.restorationPercentage}%`;
-        showSuccessModal('解谜成功！', '你正确识别了广东早茶的经典点心，祠堂修复完成！', true, 'temple');
+      if (isCorrect) {
+        // 解锁学堂建筑
+        unlockBuilding('school');
+        gameData.restorationPercentage = Math.round((gameData.unlockedElements / gameData.totalElements) * 100);
+        updateProgress();
+        
+        showSuccessModal('解谜成功！', '你正确回答了北京话的问题，解锁了北京·学堂！', true, '北京·学堂');
       } else {
-        showSuccessModal('答案有误', '有些点心不属于广东早茶哦，再试一次吧！', false);
+        showSuccessModal('答案有误', '再仔细想想，"不赖"才是北京话中"不错"的意思哦！', false);
       }
     });
     
     // 显示成功提示弹窗
-    function showSuccessModal(title, message, isSuccess = true, building = null) {
+    function showSuccessModal(title, message, showAnimation = false, elementName = '') {
       modalTitle.textContent = title;
       modalMessage.textContent = message;
       
-      // 如果是建筑修复，显示修复动画
-      if (building) {
-        buildingAnimation.classList.remove('hidden');
-        // 找到对应的建筑图片
-        const buildingImg = document.querySelector(`[data-building="${building}"] img`).src;
-        repairingImage.src = buildingImg;
+      if (showAnimation) {
+        unlockAnimation.classList.remove('hidden');
         
-        // 延迟显示修复动画
+        // 根据元素类型设置不同的图片
+        let imgSrc = '';
+        if (elementName.includes('建筑')) {
+          imgSrc = 'https://picsum.photos/id/1071/400/200';
+        } else if (elementName.includes('景观')) {
+          imgSrc = 'https://picsum.photos/id/175/400/200';
+        } else if (elementName.includes('符号')) {
+          imgSrc = 'https://picsum.photos/id/237/400/200';
+        } else {
+          imgSrc = 'https://picsum.photos/id/1015/400/200';
+        }
+        
+        unlockingImage.src = imgSrc;
+        unlockingImage.classList.add('grayscale');
+        
         setTimeout(() => {
-          repairingImage.classList.remove('grayscale');
-        }, 500);
+          unlockingImage.classList.remove('grayscale');
+          unlockingImage.style.transform = 'scale(1.05)';
+          unlockingImage.style.transition = 'all 0.5s ease';
+        }, 300);
       } else {
-        buildingAnimation.classList.add('hidden');
+        unlockAnimation.classList.add('hidden');
       }
       
-      // 显示弹窗并添加动画
       successModal.classList.remove('hidden');
       setTimeout(() => {
         modalContent.classList.remove('scale-95', 'opacity-0');
@@ -897,44 +1479,357 @@
       }, 10);
     }
     
-    // 确认弹窗
+    // 弹窗确认按钮逻辑
     modalConfirmBtn.addEventListener('click', () => {
-      // 隐藏弹窗
       modalContent.classList.remove('scale-100', 'opacity-100');
       modalContent.classList.add('scale-95', 'opacity-0', 'transition-all', 'duration-300');
       
       setTimeout(() => {
         successModal.classList.add('hidden');
-        repairingImage.classList.add('grayscale');
+        unlockingImage.classList.add('grayscale');
+        unlockingImage.style.transform = 'scale(1)';
         
-        // 如果是修复了建筑，更新村落中对应建筑的状态
-        const building = document.querySelector('[data-building="temple"]');
-        if (building) {
-          building.classList.remove('opacity-50', 'filter', 'grayscale');
+        // 检查是否所有元素都已解锁
+        if (gameData.unlockedElements >= gameData.totalElements) {
+          triggerVictoryAnimation();
+          return;
         }
         
-        // 加载下一个短语或返回村落
-        if (modalTitle.textContent === '采集成功！') {
-          loadPhrase();
-        } else {
-          showScene(villageScene);
-        }
+        // 加载下一句
+        showScene(villageScene); // 调用场景切换函数，回到主场景
+        // loadPhrase();
       }, 300);
     });
+    
+    // 更新进度显示
+    function updateProgress() {
+      restorationProgress.style.width = `${gameData.restorationPercentage}%`;
+      progressPercent.textContent = `${gameData.restorationPercentage}%`;
+      unlockedCount.textContent = `${gameData.unlockedElements}/${gameData.totalElements}`;
+      collectedCount.textContent = `已收集方言：${gameData.collectedPhrases}/${gameData.totalPhrases}`;
+    }
+    
+    // 更新已解锁方言列表
+    function updateUnlockedDialectsList() {
+      unlockedDialects.innerHTML = '';
+      
+      if (gameData.unlockedDialectList.length === 0) {
+        unlockedDialects.innerHTML = '<span class="text-dark/50 text-xs">暂无</span>';
+        return;
+      }
+      
+      // 方言名称映射
+      const dialectNames = {
+        cantonese: '粤语',
+        sichuan: '四川话',
+        beijing: '北京话',
+        northeast: '东北话',
+        shanghai: '上海话',
+        wenzhou: '温州话',
+        changsha: '长沙话',
+        xinjiang: '新疆话',
+        henan: '河南话',
+        anhui: '安徽话',
+        tianjin: '天津话'
+      };
+      
+      gameData.unlockedDialectList.forEach(dialect => {
+        const span = document.createElement('span');
+        span.className = 'bg-secondary/20 text-dark text-xs px-2 py-1 rounded-full';
+        span.textContent = dialectNames[dialect] || dialect;
+        unlockedDialects.appendChild(span);
+      });
+    }
+    
+    // 检查并解锁元素
+    function checkAndUnlockElements() {
+      // 每收集4个短语解锁一个建筑
+      if (gameData.collectedPhrases % 4 === 0) {
+        const building = document.querySelector(`.village-building[data-dialect="${gameData.currentDialect}"]`);
+        if (building && !gameData.restorationStatus.buildings[building.dataset.building]) {
+          unlockBuilding(building.dataset.building);
+          return;
+        }
+      }
+      
+      // 每收集8个短语解锁一个景观
+      if (gameData.collectedPhrases % 8 === 0) {
+        const landscapes = Array.from(document.querySelectorAll('.village-landscape'))
+          .filter(land => !gameData.restorationStatus.landscapes[land.dataset.landscape]);
+        
+        if (landscapes.length > 0) {
+          unlockLandscape(landscapes[0].dataset.landscape);
+          return;
+        }
+      }
+      
+      // 每收集12个短语解锁一个文化符号
+      if (gameData.collectedPhrases % 12 === 0) {
+        const symbol = document.querySelector(`.village-symbol[data-dialect="${gameData.currentDialect}"]`);
+        if (symbol && !gameData.restorationStatus.symbols[symbol.dataset.symbol]) {
+          unlockSymbol(symbol.dataset.symbol);
+          return;
+        }
+      }
+    }
+    
+    // 解锁建筑
+    function unlockBuilding(buildingId) {
+      const building = document.querySelector(`.village-building[data-building="${buildingId}"]`);
+      if (!building || gameData.restorationStatus.buildings[buildingId]) return;
+      
+      // 标记为已解锁
+      gameData.restorationStatus.buildings[buildingId] = true;
+      gameData.unlockedElements++;
+      
+      // 动画效果
+      building.style.animation = 'buildUp 1.5s forwards';
+      building.classList.remove('opacity-0', 'grayscale');
+      building.classList.add('building-shadow');
+      
+      // 播放解锁音效（实际项目中添加）
+      
+      // 更新进度
+      gameData.restorationPercentage = Math.round((gameData.unlockedElements / gameData.totalElements) * 100);
+      updateProgress();
+      
+      // 检查是否完成所有解锁
+      if (gameData.unlockedElements >= gameData.totalElements) {
+        setTimeout(triggerVictoryAnimation, 1000);
+      }
+    }
+    
+    // 解锁景观
+    function unlockLandscape(landscapeId) {
+      const landscape = document.querySelector(`.village-landscape[data-landscape="${landscapeId}"]`);
+      if (!landscape || gameData.restorationStatus.landscapes[landscapeId]) return;
+      
+      // 标记为已解锁
+      gameData.restorationStatus.landscapes[landscapeId] = true;
+      gameData.unlockedElements++;
+      
+      // 动画效果
+      landscape.style.transition = 'all 1.5s ease';
+      landscape.style.opacity = '1';
+      
+      // 如果是灯笼或植物，移除灰度滤镜
+      const img = landscape.querySelector('img');
+      if (img) {
+        img.style.transition = 'all 1.5s ease';
+        img.style.filter = 'none';
+        
+        // 灯笼额外添加发光效果
+        if (landscapeId.includes('lantern')) {
+          img.style.boxShadow = '0 0 15px rgba(218, 165, 32, 0.8)';
+        }
+      }
+      
+      // 更新进度
+      gameData.restorationPercentage = Math.round((gameData.unlockedElements / gameData.totalElements) * 100);
+      updateProgress();
+      
+      // 检查是否完成所有解锁
+      if (gameData.unlockedElements >= gameData.totalElements) {
+        setTimeout(triggerVictoryAnimation, 1000);
+      }
+    }
+    
+    // 解锁文化符号
+    function unlockSymbol(symbolId) {
+      const symbol = document.querySelector(`.village-symbol[data-symbol="${symbolId}"]`);
+      if (!symbol || gameData.restorationStatus.symbols[symbolId]) return;
+      
+      // 标记为已解锁
+      gameData.restorationStatus.symbols[symbolId] = true;
+      gameData.unlockedElements++;
+      
+      // 动画效果
+      symbol.style.transition = 'all 1.5s ease';
+      symbol.style.opacity = '1';
+      symbol.classList.add('animate-float');
+      
+      // 更新进度
+      gameData.restorationPercentage = Math.round((gameData.unlockedElements / gameData.totalElements) * 100);
+      updateProgress();
+      
+      // 检查是否完成所有解锁
+      if (gameData.unlockedElements >= gameData.totalElements) {
+        setTimeout(triggerVictoryAnimation, 1000);
+      }
+    }
+    
+    // 解锁省份
+    function unlockProvince(dialect, onlyMarker = false) {
+      const provinceId = gameData.dialectProvinceMap[dialect];
+      if (!provinceId) return;
+      
+      const province = document.getElementById(provinceId);
+      if (province && !onlyMarker) {
+        province.classList.add('unlocked');
+        // 添加脉动动画
+        province.classList.add('animate-pulse-slow');
+        setTimeout(() => {
+          province.classList.remove('animate-pulse-slow');
+        }, 2000);
+      }
+      
+      // 显示标记点
+      const marker = document.querySelector(`.map-marker[data-dialect="${dialect}"]`);
+      if (marker) {
+        marker.classList.add('visible');
+      }
+    }
+    
+    // 重置村落元素
+    function resetVillageElements() {
+      // 重置建筑
+      document.querySelectorAll('.village-building').forEach(building => {
+        building.style.animation = 'none';
+        building.classList.add('opacity-0', 'grayscale');
+        building.classList.remove('building-shadow');
+      });
+      
+      // 重置景观
+      document.querySelectorAll('.village-landscape').forEach(landscape => {
+        landscape.style.opacity = '0';
+        const img = landscape.querySelector('img');
+        if (img) {
+          img.style.filter = 'grayscale(100%)';
+          img.style.boxShadow = 'none';
+        }
+      });
+      
+      // 重置文化符号
+      document.querySelectorAll('.village-symbol').forEach(symbol => {
+        symbol.style.opacity = '0';
+        symbol.classList.remove('animate-float');
+      });
+    }
+    
+    // 重置地图
+    function resetMap() {
+      document.querySelectorAll('.map-province').forEach(province => {
+        province.classList.remove('unlocked', 'animate-pulse-slow');
+      });
+      
+      document.querySelectorAll('.map-marker').forEach(marker => {
+        marker.classList.remove('visible');
+      });
+      
+      updateUnlockedDialectsList();
+    }
+    
+    // 触发胜利动画
+    function triggerVictoryAnimation() {
+      // 隐藏所有场景
+      villageScene.classList.add('hidden');
+      collectScene.classList.add('hidden');
+      puzzleScene.classList.add('hidden');
+      rankScene.classList.add('hidden');
+      
+      // 清空最终地图容器
+      chinaMapFinal.innerHTML = '';
+      
+      // 创建山河碎片
+      const fragmentCount = 30;
+      const fragmentSources = [
+        'https://picsum.photos/id/1015/300/200', 'https://picsum.photos/id/1018/300/200', 
+        'https://picsum.photos/id/1019/300/200', 'https://picsum.photos/id/1036/300/200',
+        'https://picsum.photos/id/1039/300/200', 'https://picsum.photos/id/1043/300/200',
+        'https://picsum.photos/id/1047/300/200', 'https://picsum.photos/id/1051/300/200'
+      ];
+      
+      // 生成碎片并添加到地图
+      for (let i = 0; i < fragmentCount; i++) {
+        const fragment = document.createElement('div');
+        fragment.className = 'fragment';
+        fragment.style.width = `${Math.random() * 100 + 50}px`;
+        fragment.style.height = `${Math.random() * 80 + 40}px`;
+        fragment.style.left = `${Math.random() * 100}vw`;
+        fragment.style.top = `${Math.random() * 100}vh`;
+        fragment.style.opacity = '0';
+        
+        // 随机选择碎片图片
+        const img = document.createElement('img');
+        img.src = fragmentSources[Math.floor(Math.random() * fragmentSources.length)];
+        img.className = 'w-full h-full object-cover rounded-md';
+        img.style.filter = `grayscale(${Math.random() * 50 + 30}%)`;
+        fragment.appendChild(img);
+        
+        chinaMapFinal.appendChild(fragment);
+      }
+      
+      // 显示胜利场景
+      victoryScene.classList.remove('hidden');
+      
+      // 执行碎片聚合动画
+      const fragments = document.querySelectorAll('.fragment');
+      const centerX = chinaMapFinal.offsetWidth / 2;
+      const centerY = chinaMapFinal.offsetHeight / 2;
+      
+      fragments.forEach((fragment, index) => {
+        setTimeout(() => {
+          fragment.style.opacity = '1';
+          fragment.style.transform = `translate(${centerX - fragment.offsetLeft - fragment.offsetWidth/2}px, 
+                                           ${centerY - fragment.offsetTop - fragment.offsetHeight/2}px) 
+                                           rotate(${Math.random() * 360}deg) scale(1)`;
+          
+          // 最后一个碎片到位后添加整体效果
+          if (index === fragments.length - 1) {
+            setTimeout(() => {
+              // 添加金色边框和光晕
+              chinaMapFinal.style.boxShadow = '0 0 30px rgba(218, 165, 32, 0.8), 0 0 60px rgba(34, 139, 34, 0.5)';
+              
+              // 移除灰度，恢复色彩
+              fragments.forEach(frag => {
+                const img = frag.querySelector('img');
+                img.style.transition = 'filter 1.5s ease';
+                img.style.filter = 'grayscale(0%) brightness(1.1)';
+              });
+              
+              // 添加脉动效果
+              chinaMapFinal.classList.add('animate-pulse-slow');
+            }, 1500);
+          }
+        }, index * 50);
+      });
+    }
+    
+    // 完整初始化所有事件绑定
+    (function initEventListeners() {
+      // 确保所有事件都已绑定
+      if (typeof window.speechSynthesis !== 'undefined') {
+        // 语音合成API可用时的额外处理
+        window.speechSynthesis.onvoiceschanged = () => {
+          // 预加载语音包
+          const voices = window.speechSynthesis.getVoices();
+          // 可以在这里选择特定语音
+        };
+      }
+      
+      
+      // 确保所有按钮都有事件监听
+      const allButtons = document.querySelectorAll('button');
+      allButtons.forEach(btn => {
+        if (!btn.onclick && !btn.hasAttribute('disabled')) {
+          console.warn('未绑定事件的按钮:', btn.textContent);
+        }
+      });
+      
+      // 页面加载完成后的初始化
+      updateProgress();
+      updateUnlockedDialectsList();
+    })();
 
-// 文档已创建完成
-        var _hmt = _hmt || [];
+  // 文档已创建完成
+  var _hmt = _hmt || [];
         (function() {
           var hm = document.createElement("script");
           hm.src = "https://hm.baidu.com/hm.js?9b4c37e10f257b9257308505094e5890";
           var s = document.getElementsByTagName("script")[0];
           s.parentNode.insertBefore(hm, s);
         })();
-        
-        // 显示欢迎消息
-        function showMessage() {
-            alert('欢迎探索2ms的世界！');
-        }
+
   </script>
 </body>
 </html>
