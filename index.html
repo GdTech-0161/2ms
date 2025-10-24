@@ -1344,6 +1344,19 @@
       recognition.onend = () => {
         if (recordStatus.textContent.includes('正在录音')) {
           recordStatus.textContent = '录音已结束，正在处理...';
+          // 增加超时处理，3秒后若未更新则提示错误
+          setTimeout(() => {
+            if (recordStatus.textContent === '录音已结束，正在处理...') {
+              recordStatus.textContent = '处理超时，请重新录音';
+              recordBtn.disabled = false;
+              waveform.classList.add('hidden');
+            }
+    }, 3000);
+  
+
+
+
+
         }
       };
     });
